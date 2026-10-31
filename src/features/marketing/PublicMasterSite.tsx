@@ -8,18 +8,12 @@ interface PublicMasterSiteProps {
   isPlatformAdmin?: boolean;
 }
 
-export const PublicMasterSite: React.FC<PublicMasterSiteProps> = ({
-  onStartOnboarding,
-  onGoToLogin,
-  onGoToPlatformAdmin,
-  isPlatformAdmin,
-}) => {
-  return (
-    <StoryExperience
-      onGoToWorkspace={onGoToLogin}
-      onGoToOnboarding={() => onStartOnboarding('template_textile_v1')}
-      onGoToLogin={onGoToLogin}
-      isPlatformAdmin={isPlatformAdmin}
-    />
-  );
-};
+export const PublicMasterSite: React.FC<PublicMasterSiteProps> = ({ onStartOnboarding, onGoToLogin, onGoToPlatformAdmin, isPlatformAdmin }) => (
+  <StoryExperience
+    onGoToWorkspace={onGoToLogin}
+    onGoToOnboarding={() => onStartOnboarding()}
+    onGoToLogin={onGoToLogin}
+    onGoToPlatformAdmin={onGoToPlatformAdmin}
+    isPlatformAdmin={isPlatformAdmin}
+  />
+);
