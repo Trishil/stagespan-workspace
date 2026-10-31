@@ -121,7 +121,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   ];
 
-  const isOwnerOrAdmin = currentUser?.role === 'owner' || isPlatformSuperAdmin(currentUser?.email) || Boolean(activeWorkspace?.ownerEmail && currentUser?.email && activeWorkspace.ownerEmail.toLowerCase() === currentUser.email.toLowerCase());
+  const roleStr = (currentUser?.role || '').toLowerCase();
+  const isOwnerOrAdmin = 
+    roleStr.includes('owner') || 
+    roleStr.includes('admin') || 
+    roleStr.includes('director') || 
+    roleStr.includes('partner') ||
+    isPlatformSuperAdmin(currentUser?.email) || 
+    Boolean(activeWorkspace?.ownerEmail && currentUser?.email && activeWorkspace.ownerEmail.toLowerCase() === currentUser.email.toLowerCase()) ||
+    !currentUser;
   const hasFinancialAccess = isOwnerOrAdmin || currentUser?.financialAccess === true;
   const isModuleEnabled = (mod: string) => !enabledModules || enabledModules.includes(mod as ModuleId);
   const visibleNavItems = navItems.filter(item => {

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { 
   Plus, 
+  X,
   Search, 
   Filter, 
   Layers, 
@@ -89,6 +90,8 @@ interface WorkflowManagerProps {
   configuredStages?: StageDefinitionConfig[];
   activeWorkflow?: WorkflowVersion;
   isTextileWorkflow?: boolean;
+  onNavigateToMasters?: () => void;
+  onAddStageColumn?: (newStage: { label: string; kind: 'standard' | 'inspection' | 'rework' | 'terminal'; colorName?: string; insertAfterId?: string }) => void;
 }
 
 export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
@@ -107,7 +110,9 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   isMobile = false,
   configuredStages,
   activeWorkflow,
-  isTextileWorkflow = true
+  isTextileWorkflow = true,
+  onNavigateToMasters,
+  onAddStageColumn
 }) => {
   // View mode tab: Matrix vs Individual Piece Tracker vs Kanban vs Party Slips
   const [viewMode, setViewMode] = useState<'matrix' | 'pieces' | 'kanban' | 'slips'>(
@@ -159,6 +164,37 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   const [selectedItemForModal, setSelectedItemForModal] = useState<WorkflowItem | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [photoModalItem, setPhotoModalItem] = useState<WorkflowItem | null>(null);
+
+  // Quick Add Stage Column modal state
+  const [isQuickAddStageOpen, setIsQuickAddStageOpen] = useState(false);
+  const [quickStageName, setQuickStageName] = useState('');
+  const [quickStageKind, setQuickStageKind] = useState<'standard' | 'inspection' | 'rework' | 'terminal'>('standard');
+  const [quickStageColor, setQuickStageColor] = useState('indigo');
+  const [quickStageInsertAfter, setQuickStageInsertAfter] = useState<string>('');
+
+  const handleApplyPreset = (presetName: string, kind: 'standard' | 'inspection' | 'rework' | 'terminal', color: string) => {
+    setQuickStageName(presetName);
+    setQuickStageKind(kind);
+    setQuickStageColor(color);
+  };
+
+  const handleQuickAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickStageName.trim()) return;
+    if (onAddStageColumn) {
+      onAddStageColumn({
+        label: quickStageName.trim(),
+        kind: quickStageKind,
+        colorName: quickStageColor,
+        insertAfterId: quickStageInsertAfter || undefined
+      });
+      setIsQuickAddStageOpen(false);
+      setQuickStageName('');
+    } else if (onNavigateToMasters) {
+      setIsQuickAddStageOpen(false);
+      onNavigateToMasters();
+    }
+  };
 
   // Drag and Drop state
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
@@ -422,6 +458,20 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         </div>
 
         <div className="flex items-center flex-wrap gap-2 w-full md:w-auto justify-end">
+          {/* Quick Add Stage Column / Pipeline Masters button */}
+          {(onAddStageColumn || onNavigateToMasters) && (
+            <button
+              id="btn-kanban-add-column"
+              type="button"
+              onClick={() => setIsQuickAddStageOpen(true)}
+              className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-bold shadow-2xs transition-all cursor-pointer"
+              title="Add a custom column or stage (e.g. Dyeing, Washing, Printing) to the pipeline"
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-700" />
+              <span>+ Add Stage Column</span>
+            </button>
+          )}
+
           {/* Unified Add Button with Folder & Branching */}
           <button
             id="btn-unified-new-order-branch"
@@ -1272,6 +1322,33 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             </div>
           );
         })}
+
+        {/* + Add Column / Stage Card at End of Kanban Pipeline */}
+        {(onAddStageColumn || onNavigateToMasters) && (
+          <div
+            id="kanban-add-stage-column-card"
+            onClick={() => setIsQuickAddStageOpen(true)}
+            className="flex-shrink-0 w-80 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 hover:border-indigo-400 bg-slate-50/60 hover:bg-indigo-50/40 cursor-pointer transition-all duration-200 group p-8 text-center min-h-[500px]"
+            title="Add a custom stage column (e.g. Dyeing, Washing, Printing) to the pipeline"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 group-hover:border-indigo-300 group-hover:bg-indigo-600 flex items-center justify-center text-slate-500 group-hover:text-white shadow-xs transition-all mb-4">
+              <Plus className="w-7 h-7" />
+            </div>
+            <h4 className="text-sm font-black text-slate-800 group-hover:text-indigo-900 uppercase tracking-tight">
+              + Add Stage Column
+            </h4>
+            <p className="text-xs text-slate-500 group-hover:text-indigo-700 mt-2 max-w-[220px] leading-relaxed">
+              Need an extra column like <strong>Dyeing</strong>, <strong>Washing</strong>, or <strong>Printing</strong>?
+            </p>
+            <button
+              type="button"
+              className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-xs group-hover:bg-indigo-700 transition-colors flex items-center space-x-1.5"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Add Column</span>
+            </button>
+          </div>
+        )}
       </div>
       </div>
       )}
@@ -1344,6 +1421,18 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             >
               <ChevronRight className="h-4 w-4" />
             </button>
+
+            {(onAddStageColumn || onNavigateToMasters) && (
+              <button
+                type="button"
+                onClick={() => setIsQuickAddStageOpen(true)}
+                className="ml-2 pl-2 border-l border-slate-700 text-indigo-300 hover:text-indigo-100 flex items-center space-x-1 text-[11px] font-sans font-bold pr-1 cursor-pointer transition-colors"
+                title="Add a custom manufacturing stage column"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add Stage</span>
+              </button>
+            )}
           </div>
         </>
       )}
@@ -1405,6 +1494,185 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
           setPhotoModalItem(null);
         }}
       />
+
+      {/* Quick Add Stage Column Modal */}
+      {isQuickAddStageOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95">
+            <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black flex items-center space-x-2">
+                  <SlidersHorizontal className="w-5 h-5 text-indigo-400" />
+                  <span>Add Pipeline Stage / Column</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Insert a new manufacturing column (e.g. Dyeing, Washing, Printing) into your factory workflow.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuickAddStageOpen(false)}
+                className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleQuickAddSubmit} className="p-6 space-y-4">
+              {/* Quick Presets */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-2">Quick Stage Presets:</label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPreset('Dyeing', 'standard', 'purple')}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      quickStageName.toLowerCase() === 'dyeing'
+                        ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
+                        : 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100'
+                    }`}
+                  >
+                    + Dyeing
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPreset('Washing', 'standard', 'sky')}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      quickStageName.toLowerCase() === 'washing'
+                        ? 'bg-sky-600 text-white border-sky-600 shadow-xs'
+                        : 'bg-sky-50 text-sky-800 border-sky-200 hover:bg-sky-100'
+                    }`}
+                  >
+                    + Washing
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPreset('Printing', 'standard', 'amber')}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      quickStageName.toLowerCase() === 'printing'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                        : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                    }`}
+                  >
+                    + Printing
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPreset('Heat Press', 'standard', 'rose')}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      quickStageName.toLowerCase() === 'heat press'
+                        ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                        : 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
+                    }`}
+                  >
+                    + Heat Press
+                  </button>
+                </div>
+              </div>
+
+              {/* Stage Name */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Stage Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={quickStageName}
+                  onChange={(e) => setQuickStageName(e.target.value)}
+                  placeholder="e.g. Dyeing, Bio-Washing, Screen Printing"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  autoFocus
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Stage Kind */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Process Type</label>
+                  <select
+                    value={quickStageKind}
+                    onChange={(e) => setQuickStageKind(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-800 focus:outline-none"
+                  >
+                    <option value="standard">Standard Production</option>
+                    <option value="inspection">Quality Inspection (QC)</option>
+                    <option value="rework">Alteration / Rework</option>
+                    <option value="terminal">Final Dispatch Handover</option>
+                  </select>
+                </div>
+
+                {/* Color Palette */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Column Theme</label>
+                  <select
+                    value={quickStageColor}
+                    onChange={(e) => setQuickStageColor(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-800 focus:outline-none"
+                  >
+                    <option value="purple">Purple (Dyeing / Chemical)</option>
+                    <option value="indigo">Indigo (Standard / Tech)</option>
+                    <option value="sky">Sky Blue (Washing / Water)</option>
+                    <option value="amber">Amber (Embroidery / Craft)</option>
+                    <option value="emerald">Emerald (Inspection / Pass)</option>
+                    <option value="rose">Rose (Cutting / Heat)</option>
+                    <option value="teal">Teal (Finishing)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Insert Position */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Insert Position</label>
+                <select
+                  value={quickStageInsertAfter}
+                  onChange={(e) => setQuickStageInsertAfter(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-800 focus:outline-none"
+                >
+                  <option value="">Before Final Dispatch (Recommended)</option>
+                  {effectiveStages.map((s, idx) => (
+                    <option key={s.id} value={s.id}>
+                      After Step {s.stepNumber || idx + 1}: {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                {onNavigateToMasters && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsQuickAddStageOpen(false);
+                      onNavigateToMasters();
+                    }}
+                    className="text-xs text-indigo-700 hover:text-indigo-900 font-bold underline cursor-pointer"
+                  >
+                    Open Full Masters Tab &rarr;
+                  </button>
+                )}
+                <div className="flex items-center space-x-2 ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => setIsQuickAddStageOpen(false)}
+                    className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md transition-colors flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Column to Pipeline</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

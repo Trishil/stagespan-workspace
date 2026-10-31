@@ -175,7 +175,7 @@ import { FactorySettingsModal } from './features/workspace-settings/FactorySetti
 import { PlatformAdminPanel } from './features/platform-admin/PlatformAdminPanel';
 import { MastersManager } from './features/masters/MastersManager';
 import { tenantRepository, resetTenantMemoryCache } from './services/repositories/tenantRepository';
-import { FactoryConfiguration } from './domain/configuration/types';
+import { FactoryConfiguration, WorkflowVersion, StageDefinitionConfig, StageKind } from './domain/configuration/types';
 import { UserMembership } from './domain/permissions/types';
 import { TEXTILE_TEMPLATE } from './templates/textile';
 import { instantiateTemplateConfiguration } from './templates/registry';
@@ -3272,6 +3272,100 @@ export default function App() {
     await tenantRepository.saveFactoryConfiguration(published);
   };
 
+  const handleAddQuickStageColumn = async (newStage: {
+    label: string;
+    kind: 'standard' | 'inspection' | 'rework' | 'terminal';
+    colorName?: string;
+    insertAfterId?: string;
+  }) => {
+    if (!activeFactoryConfig) return;
+    const activeVersion = activeFactoryConfig.workflowVersions?.find(
+      (w) => w.versionId === activeFactoryConfig.activeWorkflowVersionId
+    ) || activeFactoryConfig.workflowVersions?.[0];
+
+    const currentStages = activeVersion ? [...activeVersion.stages] : [...TEXTILE_TEMPLATE.workflow.stages];
+    const cleanId = newStage.label.toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+
+    const colorMap: Record<string, any> = {
+      purple: { bg: 'bg-purple-50/60', border: 'border-purple-200', text: 'text-purple-900', badge: 'bg-purple-100 text-purple-800 font-bold', headerBg: 'bg-purple-100/70' },
+      indigo: { bg: 'bg-indigo-50/60', border: 'border-indigo-200', text: 'text-indigo-900', badge: 'bg-indigo-100 text-indigo-800 font-bold', headerBg: 'bg-indigo-100/70' },
+      amber: { bg: 'bg-amber-50/60', border: 'border-amber-200', text: 'text-amber-900', badge: 'bg-amber-100 text-amber-800 font-bold', headerBg: 'bg-amber-100/70' },
+      sky: { bg: 'bg-sky-50/60', border: 'border-sky-200', text: 'text-sky-900', badge: 'bg-sky-100 text-sky-800 font-bold', headerBg: 'bg-sky-100/70' },
+      emerald: { bg: 'bg-emerald-50/60', border: 'border-emerald-200', text: 'text-emerald-900', badge: 'bg-emerald-100 text-emerald-800 font-bold', headerBg: 'bg-emerald-100/70' },
+      rose: { bg: 'bg-rose-50/60', border: 'border-rose-200', text: 'text-rose-900', badge: 'bg-rose-100 text-rose-800 font-bold', headerBg: 'bg-rose-100/70' },
+      teal: { bg: 'bg-teal-50/60', border: 'border-teal-200', text: 'text-teal-900', badge: 'bg-teal-100 text-teal-800 font-bold', headerBg: 'bg-teal-100/70' }
+    };
+    const chosenColor = colorMap[newStage.colorName || 'indigo'] || colorMap.indigo;
+
+    const kindMap: Record<string, StageKind> = {
+      standard: 'operation',
+      inspection: 'inspection',
+      rework: 'rework',
+      terminal: 'completion'
+    };
+    const mappedKind: StageKind = kindMap[newStage.kind] || 'operation';
+
+    const newStageDef: StageDefinitionConfig = {
+      id: cleanId,
+      order: currentStages.length + 1,
+      label: newStage.label.trim(),
+      shortName: newStage.label.trim(),
+      description: `Process: ${newStage.label.trim()}`,
+      stageKind: mappedKind,
+      color: chosenColor,
+      iconName: 'Layers',
+      allowedTransitionStageIds: []
+    };
+
+    let updatedStages = [...currentStages];
+    if (newStage.insertAfterId) {
+      const idx = updatedStages.findIndex(s => s.id === newStage.insertAfterId);
+      if (idx >= 0) {
+        updatedStages.splice(idx + 1, 0, newStageDef);
+      } else {
+        updatedStages.push(newStageDef);
+      }
+    } else {
+      const dispatchIdx = updatedStages.findIndex(s => s.id === 'prepare_dispatch');
+      if (dispatchIdx >= 0) {
+        updatedStages.splice(dispatchIdx, 0, newStageDef);
+      } else {
+        updatedStages.push(newStageDef);
+      }
+    }
+    updatedStages = updatedStages.map((s, idx) => ({ ...s, order: idx + 1 }));
+
+    const newVersionId = `v_${Date.now()}`;
+    const nextVerNum = (activeVersion?.versionNumber || 1) + 1;
+    const newVersion: WorkflowVersion = {
+      workflowId: activeVersion?.workflowId || 'wf_textile_main',
+      versionId: newVersionId,
+      versionNumber: nextVerNum,
+      name: `Workflow v${nextVerNum} (${newStage.label.trim()})`,
+      description: `Added column stage: ${newStage.label.trim()}`,
+      stages: updatedStages,
+      initialStageId: updatedStages[0]?.id || 'fabric',
+      completionStageId: updatedStages[updatedStages.length - 1]?.id || 'prepare_dispatch',
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+      publishedBy: currentUser?.id || currentUser?.email || 'owner'
+    };
+
+    const publishedConfig: FactoryConfiguration = {
+      ...activeFactoryConfig,
+      activeWorkflowVersionId: newVersionId,
+      workflowVersions: [
+        ...(activeFactoryConfig.workflowVersions || []).map(v => ({ ...v, status: 'deprecated' as const })),
+        newVersion
+      ],
+      updatedAt: new Date().toISOString()
+    };
+
+    setActiveFactoryConfig(publishedConfig);
+    await tenantRepository.saveFactoryConfiguration(publishedConfig);
+    setLastAutoEntryNotice(`Stage column "${newStage.label}" added to pipeline!`);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-slate-900 selection:text-white">
       {isMobile ? (
@@ -3516,6 +3610,8 @@ export default function App() {
             configuredStages={activeWorkflowStages}
             activeWorkflow={activeWf}
             isTextileWorkflow={isTextile}
+            onNavigateToMasters={() => setActiveMainTab('masters')}
+            onAddStageColumn={handleAddQuickStageColumn}
           />
         )}
         
