@@ -1,0 +1,68 @@
+@font-face{font-family:Textflow;src:url('./assets/geist-latin-wght-normal.woff2') format('woff2');font-weight:100 900;font-display:swap}
+.tf-workspace{font-family:Textflow,Arial,sans-serif;background:#f3f4ef;color:#242d25;--tf-border:#dfe3d9;--tf-olive:#344733}
+.tf-workspace .font-mono{font-family:inherit;font-variant-numeric:tabular-nums}
+.tf-workspace :is(button,a,input,select,textarea):focus-visible{outline:3px solid #a18646;outline-offset:3px}
+.tf-workspace button{transition:background .18s,color .18s,border-color .18s;min-height:36px}
+.tf-workspace button:disabled{opacity:.5;cursor:not-allowed}
+.tf-workspace #app-left-sidebar{background:#202c24;color:#f2f3ec;border-color:#354338;box-shadow:none;width:244px;overflow-y:auto;scrollbar-width:thin}
+.tf-workspace #app-left-sidebar.w-18{width:76px}
+.tf-workspace #app-left-sidebar>div:first-child>div:first-child{height:82px;border-color:#ffffff15}
+.tf-workspace #app-left-sidebar :is(.text-slate-900,.text-slate-800,.text-slate-700){color:#edf0e4}
+.tf-workspace #app-left-sidebar :is(.text-slate-600,.text-slate-500,.text-slate-400){color:#a9b7a9}
+.tf-workspace #app-left-sidebar .border-t{border-color:#ffffff15}
+.tf-workspace #app-left-sidebar>div:last-child{background:#19251e;border-color:#ffffff15}
+.tf-workspace #app-left-sidebar button[id^='sidebar-tab-']{border-radius:8px;min-height:58px;padding-top:12px;padding-bottom:12px;font-weight:500}
+.tf-workspace #app-left-sidebar button[id^='sidebar-tab-']:hover{background:#ffffff0d;color:white}
+.tf-workspace #app-left-sidebar button[aria-current='page']{background:#d8dfcc;color:#233323;box-shadow:none}
+.tf-workspace #app-left-sidebar button[aria-current='page'] :is(svg,div,span){color:#233323}
+.tf-workspace #app-left-sidebar button[aria-current='page'] span{background:#bccaaa}
+.tf-workspace #app-left-sidebar .bg-amber-50,.tf-workspace #app-left-sidebar .bg-amber-50\/80{background:#ffffff08;border-color:#ffffff20;color:#ddd4b3;box-shadow:none}
+.tf-workspace #app-left-sidebar :is(.text-amber-900,.text-amber-800,.text-amber-700,.text-amber-600){color:#d2c8a1}
+.tf-workspace #app-left-sidebar .bg-white{background:#ffffff0d;border-color:#ffffff20}
+.tf-workspace #app-left-sidebar .bg-slate-50{background:#ffffff08;border-color:#ffffff20}
+.tf-workspace #app-left-sidebar .bg-amber-200\/80{background:#526345;color:#f3f3e8}
+.tf-workspace #app-left-sidebar .text-xs{font-size:13px;font-weight:550;letter-spacing:0}
+.tf-workspace #app-left-sidebar .text-\[10px\]{font-size:11px}
+.tf-workspace #app-left-sidebar .text-\[11px\]{font-size:12px}
+.tf-workspace #app-header{background:#fcfcf8;border-color:var(--tf-border);box-shadow:none}
+.tf-workspace #app-header h1{font-size:20px;font-weight:550;letter-spacing:-.045em}
+.tf-workspace #app-header p{font-size:12px;margin-top:3px;color:#697365}
+.tf-workspace #app-header>div>div{min-height:82px}
+.tf-workspace #app-header h1+span{display:none}
+.tf-workspace #btn-navbar-export-excel{background:#f3f5ee;color:#43553e;border:1px solid #dce2d3;font-weight:500}
+.tf-workspace #btn-navbar-open-story{background:transparent;color:#66715f;border:1px solid #dce2d3;box-shadow:none}
+.tf-workspace #btn-navbar-open-story svg{color:#66715f}
+.tf-workspace #btn-navbar-export-excel span:last-child{display:none}
+.tf-workspace main{max-width:1600px}
+.tf-workspace main .rounded-2xl{border-radius:12px}
+.tf-workspace main .shadow-xs{box-shadow:0 2px 5px #27351f04}
+.tf-workspace .tf-workflow-toolbar{align-items:stretch;padding:0;gap:0;overflow:clip;border-color:var(--tf-border)}
+.tf-workspace .tf-workflow-toolbar>div:first-child{border:0;border-radius:0;background:#fafbf6;padding:12px;border-bottom:1px solid var(--tf-border);gap:4px}
+.tf-workspace .tf-workflow-toolbar>div:last-child{padding:12px;gap:8px;justify-content:flex-end}
+.tf-workspace .tf-workflow-toolbar button{font-size:12px;font-weight:500;border-radius:6px;white-space:nowrap}
+.tf-workspace .tf-workflow-toolbar button[aria-pressed='true']{background:#e2e9da;color:#344733;box-shadow:none}
+.tf-workspace .tf-workflow-toolbar button[aria-pressed='false']{color:#697365}
+.tf-workspace #viewmode-btn-matrix>span:last-child{display:none}
+.tf-workspace :is(#btn-unified-new-order-branch,#btn-matrix-new-slip){background:#344733;color:#fff;border:1px solid #344733}
+.tf-workspace :is(#btn-kanban-add-column,#btn-export-wf-excel){background:#fff;color:#526248;border-color:#dbe2d5;box-shadow:none}
+.tf-workspace #btn-kanban-add-column svg,.tf-workspace #btn-export-wf-excel svg{color:#526248}
+.tf-workspace #btn-clear-all-orders{background:transparent;border-color:transparent;color:#a14a43;box-shadow:none}
+.tf-workspace #fabric-color-stage-matrix-root>div:first-child{padding:24px;border-color:var(--tf-border)}
+.tf-workspace #fabric-color-stage-matrix-root h2{font-size:22px;font-weight:550;letter-spacing:-.045em}
+.tf-workspace #fabric-color-stage-matrix-root h2+span{display:none}
+.tf-workspace #fabric-color-stage-matrix-root>div:first-child>div:first-child>div:first-child>div:first-child{display:none}
+.tf-workspace #fabric-color-stage-matrix-root p{line-height:1.6}
+.tf-workspace #fabric-color-stage-matrix-root .grid.grid-cols-2>div{background:#f8f9f4;border-color:#e4e8dd;border-radius:8px;padding:18px}
+.tf-workspace #fabric-color-stage-matrix-root .grid.grid-cols-2>div:nth-child(2){background:#eff4e9}
+.tf-workspace #fabric-color-stage-matrix-root .grid.grid-cols-2>div:nth-child(4){background:#fbf1ee}
+.tf-workspace #fabric-color-stage-matrix-root .text-2xl{font-size:32px;font-weight:550;letter-spacing:-.04em}
+.tf-workspace #fabric-color-stage-matrix-root .uppercase{font-size:10px;letter-spacing:.09em;font-weight:550}
+.tf-workspace :is(input,select,textarea){accent-color:#526742}
+@media(min-width:768px){.tf-workspace .tf-workflow-toolbar{flex-direction:column}}
+@media(min-width:1500px){.tf-workspace .tf-workflow-toolbar{flex-direction:row}.tf-workspace .tf-workflow-toolbar>div:first-child{border-bottom:0;border-right:1px solid var(--tf-border)}}
+@media(max-width:767px){.tf-workspace{background:#f3f4ef}.tf-workspace main{padding:16px 12px}.tf-workspace .tf-workflow-toolbar>div{width:100%}.tf-workspace .tf-workflow-toolbar>div:last-child{justify-content:flex-start}.tf-workspace :is(input,select,textarea){font-size:16px}.tf-workspace #fabric-color-stage-matrix-root>div:first-child{padding:16px}.tf-workspace #fabric-color-stage-matrix-root h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.tf-workspace *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+@media(max-width:1649px){.tf-workspace .tf-stock-health{display:none}}
+.tf-workspace #app-header .tf-header-context{min-width:0;flex-shrink:1}.tf-workspace #app-header .tf-header-context>div{min-width:0}.tf-workspace #app-header .tf-header-context p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(min-width:768px) and (max-width:1100px){.tf-workspace #btn-user-profile-menu>div.hidden.md\:block{display:none}.tf-workspace #app-header h1{font-size:17px}.tf-workspace #app-header .tf-header-context p{max-width:240px}.tf-workspace #app-left-sidebar{width:220px}}

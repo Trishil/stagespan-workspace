@@ -18,3 +18,11 @@ View your app in AI Studio: https://ai.studio/apps/08fcc47f-cb23-484c-85d2-87f3e
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Textflow brand and hosting
+
+App repository: https://github.com/Trishil/textflow-workspace
+Workspace: https://trishil.github.io/textflow-workspace/?experience=workspace
+Brochure: https://trishil.github.io/textflow/
+
+The local checkout directory keeps its existing name. Workspace visual styles live in `src/workspace.css`; all changes are scoped to the signed-in app. Existing tenant identifiers and stored records are preserved.

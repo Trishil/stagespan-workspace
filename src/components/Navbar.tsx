@@ -116,9 +116,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const getTabTitle = () => {
     switch (activeTab) {
       case 'workflow':
-        return { title: 'Workflow Management', subtitle: '10 Stages, Piece Matrix & Unit Routing' };
+        return { title: 'Production workspace', subtitle: 'Orders, stages and the work moving through your factory' };
       case 'inventory':
-        return { title: 'Inventory & Raw Materials', subtitle: 'Thread, Fabric, Jari & Spare Inventory' };
+        return { title: 'Materials & inventory', subtitle: 'Stock levels, consumption and replenishment' };
       case 'dispatch':
         return { title: 'Dispatch & Consignments', subtitle: 'Delivery Challans, Shipments & Unpaid Invoices' };
       case 'finance':
@@ -138,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between min-h-[72px] py-2 gap-3 flex-wrap md:flex-nowrap">
           
           {/* Left Title / Breadcrumb Context */}
-          <div className="flex items-center space-x-3 shrink-0">
+          <div className="tf-header-context flex items-center space-x-3 shrink-0">
             {onToggleSidebar && (
               <button
                 type="button"
@@ -155,7 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {tabInfo.title}
                 </h1>
                 <span className="text-[10px] text-slate-600 font-mono font-semibold bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
-                  Live System
+                  Workspace
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium">
@@ -165,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Center Stock Health Indicators (Visible on lg+) */}
-          <div className="hidden xl:flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs shrink-0">
+          <div className="tf-stock-health hidden xl:flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs shrink-0">
             <div className="flex items-center space-x-1.5 px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-mono text-[11px]">
               <span className="font-bold text-slate-900">{materials.length}</span> SKUs
             </div>
@@ -209,10 +209,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 id="btn-navbar-open-story"
                 onClick={onOpenStory}
                 className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 transition-colors shadow-2xs border border-amber-400/30 cursor-pointer"
-                title="Explore 3D Physical Scrollytelling Story"
+                title="Visit the Textflow product website"
               >
                 <Sparkles className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                <span className="hidden md:inline">3D Story</span>
+                <span className="hidden md:inline">Website</span>
               </button>
             )}
 

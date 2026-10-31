@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       id: 'workflow' as AppTab,
       label: 'Workflow',
-      sublabel: '10 Stages & Piece Matrix',
+      sublabel: 'Stages & progress',
       icon: Workflow,
       badge: workflowCount > 0 ? workflowCount : null,
       badgeColor: 'bg-slate-100 text-slate-800 border border-slate-200',
@@ -82,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       id: 'inventory' as AppTab,
       label: 'Inventory & Stock',
-      sublabel: 'Threads, Fabrics & Spares',
+      sublabel: 'Materials, stock & usage',
       icon: Layers,
       badge: lowStockCount > 0 ? `${lowStockCount} LOW` : null,
       badgeColor: 'bg-amber-50 text-amber-900 border border-amber-200 font-bold',
@@ -155,19 +155,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs text-white shadow-xs shrink-0 font-mono"
                 title={currentUser?.name || 'Profile'}
               >
-                {currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : <User className="h-5 w-5 text-white" />}
+                TF
               </div>
               <div className="truncate">
                 <div className="flex items-center space-x-1.5">
                   <span className="text-xs font-black tracking-tight text-slate-900 font-mono truncate">
-                    {activeWorkspace?.name || currentUser?.companyName || 'Trisharth'}
+                    TEXTFLOW
                   </span>
                   <span className="text-[9px] text-blue-700 font-mono font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
-                    ERP
+                    APP
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 font-semibold truncate mt-0.5">
-                  Textile Management
+                  Factory workspace
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs text-white shadow-xs shrink-0 font-mono"
                 title={currentUser?.name || 'Profile'}
               >
-                {currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : <User className="h-5 w-5 text-white" />}
+                TF
               </div>
             </div>
           )}
@@ -226,7 +226,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div className="truncate">
                   <span className="block text-[11px] font-black text-amber-900 truncate leading-tight">
-                    👑 Platform Admin
+                    Platform Admin
                   </span>
                   <span className="block text-[9px] font-mono text-amber-700 font-bold leading-tight truncate">
                     {activeWorkspace?.name || 'Trisharth HQ'} ({activeWorkspace?.code})
@@ -299,6 +299,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 id={`sidebar-tab-${item.id}`}
+                aria-current={isActive ? 'page' : undefined}
                 type="button"
                 onClick={() => onTabChange(item.id)}
                 className={`w-full flex items-center rounded-xl transition-all relative group ${
@@ -383,10 +384,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               type="button"
               onClick={onOpenPublicSite}
               className={`w-full flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'space-x-3 px-3 py-2'} rounded-xl text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 hover:text-amber-900 border border-amber-200 transition-colors shadow-2xs`}
-              title="View 3D Physical Scrollytelling Story"
+              title="Visit the Textflow product website"
             >
               <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
-              {!isCollapsed && <span>3D Process Story</span>}
+              {!isCollapsed && <span>Textflow website</span>}
             </button>
           )}
         </div>

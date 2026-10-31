@@ -114,7 +114,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   onNavigateToMasters,
   onAddStageColumn
 }) => {
-  // View mode tab: Matrix vs Individual Piece Tracker vs Kanban vs Party Slips
+  // View mode tab: Matrix vs Piece tracker vs Kanban vs Party Slips
   const [viewMode, setViewMode] = useState<'matrix' | 'pieces' | 'kanban' | 'slips'>(
     isTextileWorkflow ? 'matrix' : 'kanban'
   );
@@ -394,13 +394,14 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
     <div id="workflow-manager-root" className="space-y-6">
       
       {/* Top View Mode Navigation & Actions Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-3 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="tf-workflow-toolbar bg-white rounded-2xl border border-slate-200 shadow-xs p-3 flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="bg-slate-100/80 p-1 rounded-xl flex items-center flex-wrap gap-1 w-full md:w-auto border border-slate-200/60">
 
           <button
             id="viewmode-btn-matrix"
             type="button"
             onClick={() => setViewMode('matrix')}
+            aria-pressed={viewMode === 'matrix'}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-2 ${
               viewMode === 'matrix'
                 ? 'bg-white text-slate-900 shadow-xs'
@@ -408,7 +409,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             }`}
           >
             <Table className="h-4 w-4" />
-            <span>Fabric &amp; Color Matrix</span>
+            <span>Material matrix</span>
             <span className={`px-1.5 py-0.2 rounded text-[10px] ${viewMode === 'matrix' ? 'bg-slate-100 text-slate-700' : 'bg-slate-200/70 text-slate-600'}`}>
               Breakdown
             </span>
@@ -418,6 +419,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             id="viewmode-btn-pieces"
             type="button"
             onClick={() => setViewMode('pieces')}
+            aria-pressed={viewMode === 'pieces'}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-2 ${
               viewMode === 'pieces'
                 ? 'bg-white text-slate-900 shadow-xs'
@@ -425,13 +427,14 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             }`}
           >
             <Split className="h-4 w-4" />
-            <span>Individual Piece Tracker</span>
+            <span>Piece tracker</span>
           </button>
 
           <button
             id="viewmode-btn-kanban"
             type="button"
             onClick={() => setViewMode('kanban')}
+            aria-pressed={viewMode === 'kanban'}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-2 ${
               viewMode === 'kanban'
                 ? 'bg-white text-slate-900 shadow-xs'
@@ -439,13 +442,14 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             }`}
           >
             <Grid className="h-4 w-4" />
-            <span>{effectiveStages.length}-Stage Kanban</span>
+            <span>Stage board ({effectiveStages.length})</span>
           </button>
 
           <button
             id="viewmode-btn-slips"
             type="button"
             onClick={() => setViewMode('slips')}
+            aria-pressed={viewMode === 'slips'}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-2 ${
               viewMode === 'slips'
                 ? 'bg-white text-slate-900 shadow-xs'
@@ -453,7 +457,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             }`}
           >
             <FileText className="h-4 w-4" />
-            <span>Party Order Slips ({currentOrderSlips.length})</span>
+            <span>Order slips ({currentOrderSlips.length})</span>
           </button>
         </div>
 
@@ -468,7 +472,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               title="Add a custom column or stage (e.g. Dyeing, Washing, Printing) to the pipeline"
             >
               <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-700" />
-              <span>+ Add Stage Column</span>
+              <span>Add stage</span>
             </button>
           )}
 
@@ -481,7 +485,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             title="Create Master Order Folder (Order Slip) or Branch New Fabric Design"
           >
             <FolderTree className="h-4 w-4 text-slate-300" />
-            <span>+ New Order &amp; Design</span>
+            <span>New order / design</span>
           </button>
 
           <button
@@ -492,7 +496,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             title="Export all production data to Excel (.xlsx) file"
           >
             <Download className="h-3.5 w-3.5 text-emerald-700" />
-            <span>Export Excel (.xlsx)</span>
+            <span>Export production</span>
           </button>
 
           {/* Reset / Clear All Orders Button */}
@@ -822,7 +826,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               className="flex items-center space-x-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
             >
               <Plus className="h-4 w-4 text-slate-300" />
-              <span>+ New Order &amp; Design</span>
+              <span>New order / design</span>
             </button>
           </div>
         </div>
@@ -988,7 +992,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         </span>
       </div>
 
-      {/* 10-Stage Kanban Board Container */}
+      {/* Stage board Board Container */}
       <div 
         ref={scrollContainerRef}
         className="flex space-x-4 overflow-x-auto pb-6 pt-1 select-none scrollbar-thin scrollbar-thumb-slate-300"
@@ -1335,7 +1339,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               <Plus className="w-7 h-7" />
             </div>
             <h4 className="text-sm font-black text-slate-800 group-hover:text-indigo-900 uppercase tracking-tight">
-              + Add Stage Column
+              Add stage
             </h4>
             <p className="text-xs text-slate-500 group-hover:text-indigo-700 mt-2 max-w-[220px] leading-relaxed">
               Need an extra column like <strong>Dyeing</strong>, <strong>Washing</strong>, or <strong>Printing</strong>?

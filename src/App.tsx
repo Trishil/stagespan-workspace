@@ -1,3 +1,4 @@
+import './workspace.css';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { 
@@ -3345,7 +3346,7 @@ export default function App({ initialLogin }: AppProps = {}) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-slate-900 selection:text-white">
+    <div className="tf-workspace min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-slate-900 selection:text-white">
       {isMobile ? (
         /* Mobile Dedicated Layout */
         <div className="flex-1 flex flex-col min-w-0 pb-20">
