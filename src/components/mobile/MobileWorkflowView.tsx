@@ -167,7 +167,7 @@ export const MobileWorkflowView: React.FC<MobileWorkflowViewProps> = ({
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          10-Stage Kanban
+          Stage board
         </button>
 
         <button

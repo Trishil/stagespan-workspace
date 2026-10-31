@@ -66,3 +66,5 @@
 @media(max-width:1649px){.tf-workspace .tf-stock-health{display:none}}
 .tf-workspace #app-header .tf-header-context{min-width:0;flex-shrink:1}.tf-workspace #app-header .tf-header-context>div{min-width:0}.tf-workspace #app-header .tf-header-context p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(min-width:768px) and (max-width:1100px){.tf-workspace #btn-user-profile-menu>div.hidden.md\:block{display:none}.tf-workspace #app-header h1{font-size:17px}.tf-workspace #app-header .tf-header-context p{max-width:240px}.tf-workspace #app-left-sidebar{width:220px}}
+
+.tf-workspace #tf-mobile-header{background:#fbfcf7;border-color:#dfe3d9;box-shadow:none}.tf-workspace #tf-mobile-header .bg-slate-900{background:#344733}.tf-workspace #tf-mobile-header .font-black{font-weight:600}

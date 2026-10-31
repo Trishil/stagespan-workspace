@@ -65,7 +65,7 @@ export const MobileNavbar: React.FC<MobileNavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 shadow-xs">
+    <header id="tf-mobile-header" className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 shadow-xs">
       <div className="flex items-center justify-between">
         
         {/* Brand & Cloud Status */}
@@ -74,16 +74,16 @@ export const MobileNavbar: React.FC<MobileNavbarProps> = ({
             className="h-8 w-8 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center shadow-xs shrink-0 font-mono font-bold text-xs text-white"
             title={currentUser?.name || 'Profile'}
           >
-            {currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : <User className="h-4 w-4 text-white" />}
+            TF
           </div>
           <div className="min-w-0">
             <div className="flex items-center space-x-1.5">
               <span className="font-mono font-black text-xs text-slate-900 tracking-tight truncate">
-                {currentUser?.companyName || 'Textile ERP'}
+                TEXTFLOW
               </span>
             </div>
             <p className="text-[10px] text-slate-500 truncate font-semibold">
-              Textile Management
+              {currentUser?.companyName || 'Factory workspace'}
             </p>
           </div>
         </div>
