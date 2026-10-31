@@ -251,7 +251,7 @@ export const DispatchManager: React.FC<DispatchManagerProps> = ({
                 }`}
               >
                 <Smartphone className="h-4 w-4" />
-                <span>App Dispatch (Mobile)</span>
+                <span>Cards</span>
                 <span className={`px-1.5 py-0.2 rounded text-[10px] ${viewMode === 'mobile' ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-700'}`}>
                   Cards
                 </span>
@@ -293,7 +293,7 @@ export const DispatchManager: React.FC<DispatchManagerProps> = ({
               className="flex items-center space-x-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all"
             >
               <Plus className="h-4 w-4" />
-              <span>+ New Dispatch Order</span>
+              <span>New dispatch</span>
             </button>
           </div>
         </div>
@@ -487,7 +487,7 @@ export const DispatchManager: React.FC<DispatchManagerProps> = ({
               className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-44 sm:w-56"
             />
             {searchQuery && (
-              <button
+              <button data-dialog-close aria-label="Close dialog"
                 type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
@@ -514,6 +514,9 @@ export const DispatchManager: React.FC<DispatchManagerProps> = ({
       {/* Main Dispatch Orders Table / Grid */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         
+        <div className="tf-result-summary" aria-live="polite"><span>{filteredOrders.length} of {dispatchOrders.length} dispatch orders</span>
+          {(searchQuery || activeFilter !== 'all') && <button type="button" onClick={() => {setSearchQuery('');setActiveFilter('all');}}>Clear filters</button>}
+        </div>
         {filteredOrders.length === 0 ? (
           <div className="py-16 px-4 text-center">
             <div className="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-indigo-100">
@@ -1022,7 +1025,7 @@ export const DispatchManager: React.FC<DispatchManagerProps> = ({
 
       {/* MODAL 5: DELETE CONFIRMATION */}
       {isDeleteConfirmOpen && selectedOrder && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+        <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
             <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
               <Trash2 className="h-6 w-6" />
@@ -1032,7 +1035,7 @@ export const DispatchManager: React.FC<DispatchManagerProps> = ({
               Are you sure you want to remove dispatch consignment <span className="font-mono font-bold text-slate-900">{selectedOrder.dispatchNumber}</span> ({selectedOrder.partyName})? This will also remove the corresponding party receivable invoice in Finance.
             </p>
             <div className="flex items-center justify-end space-x-2.5 mt-6">
-              <button
+              <button data-dialog-close
                 type="button"
                 onClick={() => {
                   setIsDeleteConfirmOpen(false);
@@ -1221,7 +1224,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+    <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-6">
         
         {/* Header */}
@@ -1237,7 +1240,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <X className="h-5 w-5" />
@@ -1264,7 +1267,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
                   + Add New Buyer Party
                 </button>
               ) : (
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsAddingNewParty(false)}
                   className="text-[11px] text-slate-500 hover:text-slate-700 font-medium"
@@ -1584,7 +1587,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
             <div className="flex items-center space-x-2">
               <button
                 type="button"
-                onClick={onClose}
+                data-dialog-close onClick={onClose}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
               >
                 Cancel
@@ -1664,7 +1667,7 @@ const DispatchShipmentModal: React.FC<DispatchShipmentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+    <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
         
         <div className="px-6 py-4 bg-amber-600 text-white flex items-center justify-between">
@@ -1679,7 +1682,7 @@ const DispatchShipmentModal: React.FC<DispatchShipmentModalProps> = ({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-amber-200 hover:text-white rounded-lg hover:bg-amber-700 transition-colors"
           >
             <X className="h-5 w-5" />
@@ -1726,7 +1729,7 @@ const DispatchShipmentModal: React.FC<DispatchShipmentModalProps> = ({
                   + New Transporter
                 </button>
               ) : (
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsAddingNewTransporter(false)}
                   className="text-[11px] text-slate-500"
@@ -1803,7 +1806,7 @@ const DispatchShipmentModal: React.FC<DispatchShipmentModalProps> = ({
           <div className="flex items-center justify-end space-x-2 pt-4 border-t border-slate-200">
             <button
               type="button"
-              onClick={onClose}
+              data-dialog-close onClick={onClose}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
             >
               Cancel
@@ -1864,7 +1867,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+    <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
         
         <div className="px-6 py-4 bg-emerald-700 text-white flex items-center justify-between">
@@ -1879,7 +1882,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-emerald-200 hover:text-white rounded-lg hover:bg-emerald-800 transition-colors"
           >
             <X className="h-5 w-5" />
@@ -2008,7 +2011,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
             <button
               type="button"
-              onClick={onClose}
+              data-dialog-close onClick={onClose}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
             >
               Cancel

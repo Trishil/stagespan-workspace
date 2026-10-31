@@ -249,7 +249,7 @@ export const DesignPhotoModal: React.FC<DesignPhotoModalProps> = ({
   if (!isOpen || !item) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Header */}
@@ -272,7 +272,7 @@ export const DesignPhotoModal: React.FC<DesignPhotoModalProps> = ({
               </p>
             </div>
           </div>
-          <button
+          <button data-dialog-close aria-label="Close dialog"
             onClick={() => { stopCamera(); onClose(); }}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
           >
@@ -395,7 +395,7 @@ export const DesignPhotoModal: React.FC<DesignPhotoModalProps> = ({
                     alt="Selected Preview"
                     className="object-contain max-h-64 w-full"
                   />
-                  <button
+                  <button data-dialog-close aria-label="Close dialog"
                     onClick={() => { setPreviewUrl(null); setSelectedFile(null); }}
                     className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 text-white hover:bg-rose-600 transition-colors shadow-md"
                   >
@@ -528,7 +528,7 @@ export const DesignPhotoModal: React.FC<DesignPhotoModalProps> = ({
                       >
                         <span className="text-blue-600 font-bold">{meta.key}:</span>
                         <span>{meta.value}</span>
-                        <button
+                        <button data-dialog-close aria-label="Close dialog"
                           type="button"
                           onClick={() => handleRemoveMeta(idx)}
                           className="text-slate-400 hover:text-rose-600 ml-1"
@@ -579,7 +579,7 @@ export const DesignPhotoModal: React.FC<DesignPhotoModalProps> = ({
           </div>
           
           <div className="flex items-center space-x-2">
-            <button
+            <button data-dialog-close
               type="button"
               onClick={() => { stopCamera(); onClose(); }}
               className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors"

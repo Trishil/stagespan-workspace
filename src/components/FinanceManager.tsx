@@ -1,3 +1,4 @@
+import { ActionMenu } from './ui/ActionMenu';
 import React, { useState } from 'react';
 import { 
   IndianRupee, 
@@ -873,13 +874,13 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <h2 className="text-lg font-black tracking-tight text-slate-900">Factory Financial Management &amp; Ledger</h2>
+                  <h2 className="text-lg font-black tracking-tight text-slate-900">Finance & accounts</h2>
                   <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full border border-slate-200">
                     LIVE LEDGER (INR ₹)
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-0.5 max-w-2xl">
-                  Complete financial synchronization linking real-time warehouse inventory, staff salaries, 3-phase electricity consumption, party receivables, and supplier payables.
+                  Track receivables, payables, team costs and operating expenses in one ledger.
                 </p>
               </div>
             </div>
@@ -905,6 +906,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               <span>+ Add Expense</span>
             </button>
 
+            <ActionMenu label="Ledger actions">
             {onClearAllFinanceData && (
               <button
                 id="btn-clear-finance-records"
@@ -915,7 +917,8 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
                 <Trash2 className="h-3.5 w-3.5 text-rose-500" />
                 <span>Clear Records</span>
               </button>
-            )}
+            )}            </ActionMenu>
+
           </div>
         </div>
 
@@ -2001,7 +2004,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 1: ADD OR EDIT ELECTRICITY RECORD */}
       {isAddElectricityOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div className="flex items-center space-x-2">
@@ -2010,7 +2013,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
                   {editingElectricity ? 'Edit Electricity Log / Bill' : 'Log Electricity Meter Reading & Bill'}
                 </h3>
               </div>
-              <button 
+              <button data-dialog-close aria-label="Close dialog"
                 onClick={() => setIsAddElectricityOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
@@ -2152,7 +2155,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               </div>
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsAddElectricityOpen(false)}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl"
@@ -2174,7 +2177,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 2: IMPORT STOCK WITH PAYABLE */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in overflow-y-auto">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 my-8 max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
               <div className="flex items-center space-x-2">
@@ -2186,7 +2189,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
                   <p className="text-[11px] text-slate-500">Every import directly increases warehouse stock and logs an accounts payable liability.</p>
                 </div>
               </div>
-              <button 
+              <button data-dialog-close aria-label="Close dialog"
                 onClick={() => setIsImportModalOpen(false)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               >
@@ -2834,7 +2837,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               </datalist>
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100 flex-shrink-0">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsImportModalOpen(false)}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors"
@@ -2856,14 +2859,14 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 3: RECEIVE PAYMENT FROM PARTY */}
       {isRecordPaymentOpen && selectedInvoice && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div className="flex items-center space-x-2">
                 <Receipt className="h-5 w-5 text-emerald-600" />
                 <h3 className="text-base font-bold text-slate-900">Record Party Payment Received</h3>
               </div>
-              <button 
+              <button data-dialog-close aria-label="Close dialog"
                 onClick={() => setIsRecordPaymentOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
@@ -2923,7 +2926,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               </div>
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsRecordPaymentOpen(false)}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl"
@@ -2944,14 +2947,14 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 4: PAY SUPPLIER */}
       {isSupplierPayOpen && selectedPayable && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div className="flex items-center space-x-2">
                 <Truck className="h-5 w-5 text-amber-600" />
                 <h3 className="text-base font-bold text-slate-900">Disburse Payment to Supplier</h3>
               </div>
-              <button 
+              <button data-dialog-close aria-label="Close dialog"
                 onClick={() => setIsSupplierPayOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
@@ -3010,7 +3013,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               </div>
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsSupplierPayOpen(false)}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl"
@@ -3031,14 +3034,14 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 5: ADD EMPLOYEE */}
       {isAddEmployeeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div className="flex items-center space-x-2">
                 <UserPlus className="h-5 w-5 text-blue-600" />
                 <h3 className="text-base font-bold text-slate-900">Add Staff Member / Machine Operator</h3>
               </div>
-              <button 
+              <button data-dialog-close aria-label="Close dialog"
                 onClick={() => setIsAddEmployeeOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
@@ -3346,7 +3349,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               )}
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsAddEmployeeOpen(false)}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl"
@@ -3367,7 +3370,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 5B: EDIT EMPLOYEE PROFILE & CLEARANCES */}
       {editingEmployee && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div className="flex items-center space-x-2">
@@ -3384,7 +3387,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
                   <p className="text-xs text-slate-500">Update staff role, clearances, Google OAuth account, and password</p>
                 </div>
               </div>
-              <button 
+              <button data-dialog-close aria-label="Close dialog"
                 onClick={() => setEditingEmployee(null)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
@@ -3712,7 +3715,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               )}
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setEditingEmployee(null)}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl"
@@ -3733,14 +3736,14 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 6: ADD OPERATIONAL EXPENSE */}
       {isAddExpenseOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div className="flex items-center space-x-2">
                 <CreditCard className="h-5 w-5 text-purple-600" />
                 <h3 className="text-base font-bold text-slate-900">Record Operational Expense</h3>
               </div>
-              <button 
+              <button data-dialog-close aria-label="Close dialog"
                 onClick={() => setIsAddExpenseOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
@@ -3816,7 +3819,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
               </div>
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsAddExpenseOpen(false)}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl"
@@ -3837,7 +3840,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
 
       {/* MODAL 7: CONFIRM CLEAR ALL FINANCE DATA */}
       {isClearAllConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-200 animate-in zoom-in-95 duration-200">
             <div className="flex items-center space-x-3 text-rose-600 mb-3">
               <div className="p-2.5 bg-rose-100 rounded-xl">
@@ -3866,7 +3869,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({
             </p>
 
             <div className="flex items-center justify-end space-x-2">
-              <button
+              <button data-dialog-close
                 type="button"
                 onClick={() => setIsClearAllConfirmOpen(false)}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors"

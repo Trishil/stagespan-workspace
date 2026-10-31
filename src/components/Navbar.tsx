@@ -1,3 +1,4 @@
+import { ActionMenu } from './ui/ActionMenu';
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Factory, 
@@ -120,9 +121,11 @@ export const Navbar: React.FC<NavbarProps> = ({
       case 'inventory':
         return { title: 'Materials & inventory', subtitle: 'Stock levels, consumption and replenishment' };
       case 'dispatch':
-        return { title: 'Dispatch & Consignments', subtitle: 'Delivery Challans, Shipments & Unpaid Invoices' };
+        return { title: 'Dispatch & orders', subtitle: 'Delivery notes, shipments and payments' };
       case 'finance':
-        return { title: 'Finance & Accounts Ledger', subtitle: 'Wages, Electricity, Expenses & Cash Flow' };
+        return { title: 'Finance & accounts', subtitle: 'Receivables, costs and cash flow' };
+      case 'masters':
+        return { title: 'Masters & setup', subtitle: 'Production stages, units, fields and team access' };
       default:
         return { title: 'Factory Operations', subtitle: 'Production & Inventory Control' };
     }
@@ -189,6 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Controls & User Profile */}
           <div className="flex items-center space-x-2 sm:space-x-3 shrink-0 ml-auto">
             
+            <ActionMenu label="Workspace actions">
             {/* 1-Click Multi-Sheet Excel Export */}
             {onExportExcel && (
               <button
@@ -203,18 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            {/* 3D Process Story Experience */}
-            {onOpenStory && (
-              <button
-                id="btn-navbar-open-story"
-                onClick={onOpenStory}
-                className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 transition-colors shadow-2xs border border-amber-400/30 cursor-pointer"
-                title="Visit the Textflow product website"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                <span className="hidden md:inline">Website</span>
-              </button>
-            )}
+            </ActionMenu>
 
             {/* Alerts Bell */}
             <button

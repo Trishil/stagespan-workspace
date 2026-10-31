@@ -160,7 +160,7 @@ export const InvoiceAndChallanModal: React.FC<InvoiceAndChallanModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+    <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
       
       <div className="bg-white rounded-2xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden my-4 sm:my-6">
         
@@ -216,7 +216,7 @@ export const InvoiceAndChallanModal: React.FC<InvoiceAndChallanModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={onClose}
+              aria-label="Close dialog" data-dialog-close onClick={onClose}
               className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="h-5 w-5" />

@@ -68,3 +68,63 @@
 @media(min-width:768px) and (max-width:1100px){.tf-workspace #btn-user-profile-menu>div.hidden.md\:block{display:none}.tf-workspace #app-header h1{font-size:17px}.tf-workspace #app-header .tf-header-context p{max-width:240px}.tf-workspace #app-left-sidebar{width:220px}}
 
 .tf-workspace #tf-mobile-header{background:#fbfcf7;border-color:#dfe3d9;box-shadow:none}.tf-workspace #tf-mobile-header .bg-slate-900{background:#344733}.tf-workspace #tf-mobile-header .font-black{font-weight:600}
+
+/* Shared workspace surfaces: Inventory, Dispatch, Finance, Masters and their dialogs. */
+.tf-workspace{--tf-paper:#fbfcf8;--tf-muted:#f0f3eb;--tf-ink:#29362a;--tf-secondary:#65715f;--tf-accent:#40583a}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.bg-white,.bg-slate-50,.bg-slate-50\/80,.bg-slate-50\/50){background-color:var(--tf-paper)}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.border-slate-200,.border-slate-200\/80,.border-slate-100,.border-slate-300){border-color:var(--tf-border)}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.bg-slate-100,.bg-slate-100\/80,.bg-slate-200\/80){background-color:var(--tf-muted)}
+.tf-workspace :is(main,.tf-dialog-layer) :is(h1,h2,h3,h4){letter-spacing:-.025em;font-weight:600;line-height:1.4}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.font-black,.font-extrabold){font-weight:600}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.text-slate-400,.text-slate-500){color:#707d69}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.text-blue-950,.text-blue-900,.text-blue-800,.text-blue-700,.text-blue-600,.text-indigo-900,.text-indigo-800,.text-indigo-700,.text-indigo-600,.text-purple-700){color:#40583a}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.bg-blue-50,.bg-blue-50\/50,.bg-indigo-50,.bg-purple-50,.bg-blue-100,.bg-indigo-100){background-color:#eaf0e3}
+.tf-workspace :is(main,.tf-dialog-layer) :is(.border-blue-200,.border-indigo-200,.border-blue-300,.border-indigo-300){border-color:#ccd8c2}
+.tf-workspace :is(main,.tf-dialog-layer) button:is(.bg-slate-900,.bg-blue-600,.bg-indigo-600,.bg-blue-700,.bg-indigo-500,.bg-indigo-900){background:#40583a;color:#fff;box-shadow:none;border-color:#40583a}
+.tf-workspace :is(main,.tf-dialog-layer) button:is(.bg-slate-900,.bg-blue-600,.bg-indigo-600,.bg-blue-700,.bg-indigo-500,.bg-indigo-900):hover{background:#30462a}
+.tf-workspace :is(main,.tf-dialog-layer) button:is(.bg-slate-900,.bg-blue-600,.bg-indigo-600,.bg-blue-700,.bg-indigo-500,.bg-indigo-900) :is(svg,span){color:inherit}
+.tf-workspace :is(main,.tf-dialog-layer) :is(input:not([type='checkbox']):not([type='radio']):not([type='file']),select,textarea){border-radius:7px;min-height:38px;box-shadow:none;border-color:#d5ddcf;background-color:#fff;color:#29362a}
+.tf-workspace :is(main,.tf-dialog-layer) table{font-variant-numeric:tabular-nums}
+.tf-workspace :is(main,.tf-dialog-layer) thead{background:#f1f4ec}
+.tf-workspace :is(main,.tf-dialog-layer) th{font-size:11px;font-weight:600;letter-spacing:.03em}
+.tf-workspace .tf-dialog-layer{background:#14211999;backdrop-filter:blur(5px);padding:20px;overscroll-behavior:contain}
+.tf-workspace .tf-dialog-layer>div{border-radius:16px;border-color:#dbe3d3;box-shadow:0 28px 100px #101c1733;max-height:calc(100dvh - 40px)}
+.tf-workspace .tf-dialog-layer :is(.bg-slate-950,.bg-slate-900,.bg-slate-800,.bg-slate-800\/50,.bg-slate-900\/50,.bg-slate-950\/50){background-color:#f8faf3}
+.tf-workspace .tf-dialog-layer :is(.border-slate-800,.border-slate-700){border-color:#dce4d4}
+.tf-workspace .tf-dialog-layer :is(.text-white,.text-slate-100,.text-slate-200,.text-slate-300){color:#34432f}
+.tf-workspace .tf-dialog-layer :is(.text-indigo-400,.text-blue-400,.text-indigo-300,.text-blue-300){color:#657d50}
+.tf-workspace .tf-dialog-layer :is(h1,h2,h3){color:#29362a}
+.tf-workspace .tf-dialog-layer button:is(.bg-slate-900,.bg-slate-800,.bg-blue-600,.bg-indigo-600,.bg-emerald-600,.bg-rose-600,.bg-red-600,.bg-indigo-500,.bg-blue-700){color:white}
+.tf-workspace .tf-dialog-layer button:is(.bg-slate-900,.bg-slate-800,.bg-blue-600,.bg-indigo-600,.bg-emerald-600,.bg-rose-600,.bg-red-600,.bg-indigo-500,.bg-blue-700) :is(span,svg){color:inherit}
+.tf-workspace .tf-dialog-layer button.bg-slate-800{background:#40583a}
+.tf-workspace .tf-dialog-layer .bg-gradient-to-r{background-image:none;background-color:#edf2e6}
+.tf-workspace .tf-dialog-layer [data-dialog-close]{min-width:36px;min-height:36px}
+.tf-action-menu{position:relative;flex-shrink:0;font-size:12px}
+.tf-action-menu>summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid #d6dece;border-radius:7px;background:#fafbf6;color:#53634b;cursor:pointer;font-weight:500}
+.tf-action-menu>summary::-webkit-details-marker{display:none}
+.tf-action-menu[open]>summary{background:#eaf0e3}
+.tf-action-menu-panel{position:absolute;right:0;top:calc(100% + 7px);min-width:220px;max-width:calc(100vw - 32px);padding:6px;z-index:45;border:1px solid #d6dece;border-radius:10px;box-shadow:0 15px 45px #19291920;background:#fff;display:grid;gap:3px}
+.tf-action-menu-panel>button,.tf-workspace .tf-workflow-toolbar .tf-action-menu-panel>button{width:100%;display:flex;justify-content:flex-start;background:transparent!important;border:0!important;box-shadow:none!important;margin:0;padding:10px 12px;min-height:40px;text-align:left;border-radius:5px!important;color:#43553d;font-weight:500}
+.tf-action-menu-panel>button:hover{background:#f0f4e9!important}
+.tf-action-menu-panel #btn-clear-all-orders{color:#a33b36;border-top:1px solid #ede3df!important;border-radius:0!important}
+.tf-workspace .tf-workflow-toolbar{overflow:visible}
+.tf-workspace .tf-result-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#68765f;font-size:12px;margin:12px 0}
+.tf-result-summary button{background:#edf3e7;border:1px solid #cddac2;border-radius:6px;padding:6px 12px;color:#40583a;font-size:12px}
+@media(max-width:767px){.tf-workspace .tf-dialog-layer{padding:10px}.tf-workspace .tf-dialog-layer>div{max-height:calc(100dvh - 20px);border-radius:12px}.tf-workspace .tf-dialog-layer button{min-height:42px}.tf-workspace .tf-dialog-layer :is(input,select,textarea){font-size:16px}.tf-action-menu>summary{min-height:42px}}
+/* Inline ledger and configuration dialogs share the same light surfaces. */
+.tf-workspace main :is(div,section,header,footer):is(.bg-slate-900,.bg-slate-950,.bg-slate-800){background:#f5f8ee;color:#34432f}
+.tf-workspace main :is(div,section,header,footer):is(.bg-slate-900,.bg-slate-950,.bg-slate-800) :is(.text-white,.text-slate-200,.text-slate-300){color:#34432f}
+.tf-workspace main .bg-gradient-to-r{background-image:none;background-color:#f2f5ec}
+.tf-workspace main button:is(.bg-slate-900,.bg-blue-600,.bg-indigo-600,.bg-blue-700,.bg-indigo-500,.bg-indigo-900) :is(span,svg){color:inherit}
+.tf-workspace .tf-action-menu-panel #btn-clear-finance-records{color:#a33b36;border-top:1px solid #ede3df!important;border-radius:0!important}
+.tf-workspace #finance-manager-root .tf-action-menu{z-index:10}
+.tf-workspace .tf-dialog-layer :is(div,section,header,footer):not(.tf-dialog-layer):is([class*='bg-slate-7'],[class*='bg-slate-8'],[class*='bg-slate-9'],[class*='bg-indigo-9'],[class*='bg-blue-9'],[class*='bg-emerald-9'],[class*='bg-gradient']){background:#f1f5e9;background-image:none;border-color:#d7e1cc;color:#34432f}
+.tf-workspace .tf-dialog-layer :is(div,span):is(.bg-indigo-600,.bg-blue-600,.bg-purple-600,.bg-blue-600\/30,.bg-indigo-600\/20){background:#e1ead6;color:#40583a;box-shadow:none}
+.tf-workspace .tf-dialog-layer :is([class*='text-blue-3'],[class*='text-blue-4'],[class*='text-indigo-3'],[class*='text-indigo-4'],[class*='text-purple-3'],[class*='text-purple-4']){color:#5b7249}
+.tf-workspace .tf-dialog-layer .text-emerald-400{color:#23734c}
+.tf-workspace .tf-dialog-layer button:is(.bg-purple-600,.bg-indigo-700,.bg-purple-700){background:#40583a;color:white}
+.tf-workspace .tf-dialog-layer button:is(.bg-purple-600,.bg-indigo-700,.bg-purple-700) :is(svg,span){color:inherit}
+.tf-workspace #app-left-sidebar button[aria-current='page']:hover{background:#d8dfcc;color:#233323}
+.tf-workspace .tf-dialog-layer :is(.text-indigo-100,.text-indigo-200,.text-blue-100,.text-blue-200,.text-purple-500,.text-purple-600){color:#5b7249}
+.tf-workspace .tf-dialog-layer :is(.border-indigo-700,.border-indigo-800,.border-blue-700){border-color:#d4dfc7}
+.tf-workspace main div:is(.bg-indigo-600,.bg-blue-600,.bg-purple-600){background:#e1ead6;color:#40583a;box-shadow:none}

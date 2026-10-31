@@ -238,7 +238,7 @@ export const PlatformAdminPanel: React.FC<PlatformAdminPanelProps> = ({
 
   if (!isSuperAdmin) {
     return (
-      <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl max-w-md w-full p-6 text-center shadow-2xl border border-rose-200">
           <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
             <Lock className="w-6 h-6" />
@@ -249,7 +249,7 @@ export const PlatformAdminPanel: React.FC<PlatformAdminPanelProps> = ({
           </p>
           <button
             type="button"
-            onClick={onClose}
+            data-dialog-close onClick={onClose}
             className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
           >
             Dismiss
@@ -268,7 +268,7 @@ export const PlatformAdminPanel: React.FC<PlatformAdminPanelProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 select-none animate-fadeIn">
+    <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 select-none animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-6xl w-full h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
         {/* Top Header */}
         <div className="p-5 bg-slate-950 text-white flex items-center justify-between border-b border-slate-800">
@@ -301,7 +301,7 @@ export const PlatformAdminPanel: React.FC<PlatformAdminPanelProps> = ({
             </button>
             <button
               type="button"
-              onClick={onClose}
+              data-dialog-close onClick={onClose}
               className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors"
             >
               Close
@@ -560,7 +560,7 @@ export const PlatformAdminPanel: React.FC<PlatformAdminPanelProps> = ({
                                 >
                                   {isSavingOwner ? <span>Assigning...</span> : <span>Save &amp; Delegate Ownership</span>}
                                 </button>
-                                <button
+                                <button data-dialog-close
                                   type="button"
                                   onClick={() => setIsEditingOwner(false)}
                                   className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs transition-colors"

@@ -167,7 +167,7 @@ export const SheetIntegrationModal: React.FC<SheetIntegrationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
       <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] overflow-y-auto">
         
         {/* Header */}
@@ -182,7 +182,7 @@ export const SheetIntegrationModal: React.FC<SheetIntegrationModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="h-4 w-4" />
@@ -302,7 +302,7 @@ export const SheetIntegrationModal: React.FC<SheetIntegrationModalProps> = ({
             <div className="flex items-center space-x-2 w-full sm:w-auto">
               <button
                 type="button"
-                onClick={onClose}
+                data-dialog-close onClick={onClose}
                 className="px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-semibold"
               >
                 Close

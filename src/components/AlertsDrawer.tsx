@@ -24,7 +24,7 @@ export const AlertsDrawer: React.FC<AlertsDrawerProps> = ({
   const activeAlerts = alerts.filter(a => !a.resolved);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end">
+    <div className="tf-dialog-layer fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end">
       <div className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
         
         {/* Drawer Header */}
@@ -39,7 +39,7 @@ export const AlertsDrawer: React.FC<AlertsDrawerProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
           >
             <X className="h-4 w-4" />

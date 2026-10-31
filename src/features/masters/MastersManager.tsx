@@ -735,7 +735,7 @@ export const MastersManager: React.FC<MastersManagerProps> = ({
 
           {/* Stage Edit / Add Modal */}
           {isEditingStage && (
-            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
               <form onSubmit={handleSaveStageForm} className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div>
@@ -830,7 +830,7 @@ export const MastersManager: React.FC<MastersManagerProps> = ({
                 </div>
 
                 <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                  <button
+                  <button data-dialog-close
                     type="button"
                     onClick={() => { setIsEditingStage(false); setEditingStageId(null); }}
                     className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors"
@@ -1147,7 +1147,7 @@ export const MastersManager: React.FC<MastersManagerProps> = ({
                   <span className="font-bold text-xs text-slate-900">
                     {editingMemberUserId ? 'Edit Member Access & Permissions' : 'Add New Team Member'}
                   </span>
-                  <button
+                  <button data-dialog-close
                     type="button"
                     onClick={() => { setIsEditingMember(false); setEditingMemberUserId(null); }}
                     className="text-slate-400 hover:text-slate-700 text-xs"
@@ -1320,7 +1320,7 @@ export const MastersManager: React.FC<MastersManagerProps> = ({
                 </div>
 
                 <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
-                  <button
+                  <button data-dialog-close
                     type="button"
                     onClick={() => { setIsEditingMember(false); setEditingMemberUserId(null); }}
                     className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors"

@@ -101,7 +101,7 @@ export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
       <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
         
         {/* Modal Header */}
@@ -116,7 +116,7 @@ export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="h-4 w-4" />
@@ -420,7 +420,7 @@ export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
                   <strong>Remove this machine?</strong> This unit will be decommissioned and unsynced from Google Sheets.
                 </div>
                 <div className="flex items-center space-x-2 shrink-0">
-                  <button
+                  <button data-dialog-close
                     id="btn-cancel-inline-delete-machine"
                     type="button"
                     onClick={() => setShowDeleteConfirm(false)}
@@ -455,7 +455,7 @@ export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
                   <button
                     id="btn-cancel-machine-detail"
                     type="button"
-                    onClick={onClose}
+                    data-dialog-close onClick={onClose}
                     className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
                   >
                     Cancel

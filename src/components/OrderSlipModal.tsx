@@ -244,7 +244,7 @@ export const OrderSlipModal: React.FC<OrderSlipModalProps> = ({
   return (
     <div 
       id="modal-order-slip-root"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150"
+      className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150"
     >
       <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full border border-slate-300 my-4 overflow-hidden flex flex-col max-h-[92vh]">
         
@@ -276,7 +276,7 @@ export const OrderSlipModal: React.FC<OrderSlipModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={onClose}
+              aria-label="Close dialog" data-dialog-close onClick={onClose}
               className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
             >
               <X className="h-5 w-5" />
@@ -735,7 +735,7 @@ export const OrderSlipModal: React.FC<OrderSlipModalProps> = ({
             <div className="flex items-center space-x-2">
               <button
                 type="button"
-                onClick={onClose}
+                data-dialog-close onClick={onClose}
                 className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
               >
                 Cancel

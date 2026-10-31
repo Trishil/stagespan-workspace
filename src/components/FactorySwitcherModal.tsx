@@ -156,7 +156,7 @@ export const FactorySwitcherModal: React.FC<FactorySwitcherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
       <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
         
         {/* Header: Platform Super Admin Console */}
@@ -178,7 +178,7 @@ export const FactorySwitcherModal: React.FC<FactorySwitcherModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
           >
             <X className="h-5 w-5" />
@@ -244,7 +244,7 @@ export const FactorySwitcherModal: React.FC<FactorySwitcherModalProps> = ({
                   <Sparkles className="h-4 w-4 text-blue-600" />
                   <span>Provision New Commercial Factory</span>
                 </div>
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsAddingNew(false)}
                   className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
@@ -358,7 +358,7 @@ export const FactorySwitcherModal: React.FC<FactorySwitcherModalProps> = ({
                 </div>
 
                 <div className="flex items-center justify-end space-x-2 pt-2">
-                  <button
+                  <button data-dialog-close
                     type="button"
                     onClick={() => setIsAddingNew(false)}
                     className="px-3 py-1.5 bg-white border border-slate-300 text-slate-600 rounded-lg font-semibold hover:bg-slate-100 cursor-pointer"
@@ -513,7 +513,7 @@ export const FactorySwitcherModal: React.FC<FactorySwitcherModalProps> = ({
             <span>Clients have strict zero-visibility of other factories.</span>
           </span>
           <button
-            onClick={onClose}
+            data-dialog-close onClick={onClose}
             className="px-3 py-1 text-slate-600 hover:text-slate-900 font-semibold cursor-pointer"
           >
             Close
@@ -524,7 +524,7 @@ export const FactorySwitcherModal: React.FC<FactorySwitcherModalProps> = ({
 
       {/* Delete Confirmation Modal */}
       {deletingFactory && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-200 space-y-4">
             <div className="flex items-center space-x-3 text-rose-600">
               <div className="p-2.5 bg-rose-100 rounded-xl">
@@ -564,7 +564,7 @@ export const FactorySwitcherModal: React.FC<FactorySwitcherModalProps> = ({
             </div>
 
             <div className="flex items-center justify-end space-x-2 pt-2">
-              <button
+              <button data-dialog-close
                 type="button"
                 disabled={isDeleting}
                 onClick={() => {

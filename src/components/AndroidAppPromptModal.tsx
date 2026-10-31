@@ -147,7 +147,7 @@ Fields:
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Header */}
@@ -171,7 +171,7 @@ Fields:
             </div>
           </div>
           <button
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="h-5 w-5" />
@@ -323,7 +323,7 @@ Fields:
           </span>
           <button
             type="button"
-            onClick={onClose}
+            data-dialog-close onClick={onClose}
             className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm"
           >
             Close

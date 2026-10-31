@@ -484,7 +484,7 @@ export const MobileMatrixView: React.FC<MobileMatrixViewProps> = ({
 
       {/* EDIT PIECE BREAKDOWN MODAL */}
       {editingItem && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+        <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl max-w-sm w-full p-5 border border-slate-200 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
@@ -493,7 +493,7 @@ export const MobileMatrixView: React.FC<MobileMatrixViewProps> = ({
                   {editingItem.partyOrClientName || editingItem.partyName} • {editingItem.fabricColor} ({editingItem.fabricType})
                 </p>
               </div>
-              <button
+              <button data-dialog-close aria-label="Close dialog"
                 type="button"
                 onClick={() => setEditingItem(null)}
                 className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
@@ -528,7 +528,7 @@ export const MobileMatrixView: React.FC<MobileMatrixViewProps> = ({
             </div>
 
             <div className="flex items-center space-x-2 pt-2 border-t border-slate-100">
-              <button
+              <button data-dialog-close
                 type="button"
                 onClick={() => setEditingItem(null)}
                 className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"

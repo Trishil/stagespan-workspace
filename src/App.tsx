@@ -1,3 +1,4 @@
+import { WorkspaceDialogs } from './components/ui/WorkspaceDialogs';
 import './workspace.css';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import confetti from 'canvas-confetti';
@@ -381,6 +382,7 @@ export default function App({ initialLogin }: AppProps = {}) {
 
   // UI state
   const [activeMainTab, setActiveMainTab] = useState<AppTab>('workflow');
+  useEffect(() => { window.scrollTo({top: 0, behavior: 'instant'}); }, [activeMainTab]);
 
   // Guard Financial Tab: If user lacks financial access, automatically redirect to workflow
   useEffect(() => {
@@ -3347,6 +3349,7 @@ export default function App({ initialLogin }: AppProps = {}) {
 
   return (
     <div className="tf-workspace min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-slate-900 selection:text-white">
+      <WorkspaceDialogs />
       {isMobile ? (
         /* Mobile Dedicated Layout */
         <div className="flex-1 flex flex-col min-w-0 pb-20">
@@ -3852,7 +3855,7 @@ export default function App({ initialLogin }: AppProps = {}) {
       {materialToDelete && (
         <div 
           id="modal-delete-material-confirm"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150"
+          className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150"
         >
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
             <div className="p-6">
@@ -3872,7 +3875,7 @@ export default function App({ initialLogin }: AppProps = {}) {
               </div>
 
               <div className="flex items-center justify-end space-x-3">
-                <button
+                <button data-dialog-close
                   id="btn-cancel-delete-material"
                   type="button"
                   onClick={() => setMaterialToDelete(null)}
@@ -3899,7 +3902,7 @@ export default function App({ initialLogin }: AppProps = {}) {
       {machineToDelete && (
         <div 
           id="modal-delete-machine-confirm"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150"
+          className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150"
         >
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
             <div className="p-6">
@@ -3919,7 +3922,7 @@ export default function App({ initialLogin }: AppProps = {}) {
               </div>
 
               <div className="flex items-center justify-end space-x-3">
-                <button
+                <button data-dialog-close
                   id="btn-cancel-delete-machine"
                   type="button"
                   onClick={() => setMachineToDelete(null)}

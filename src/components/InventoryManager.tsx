@@ -141,11 +141,14 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
   return (
     <section id="inventory-section" className="mb-10">
       
+      <div className="tf-result-summary" aria-live="polite"><span>{filteredMaterials.length} of {materials.length} materials</span>
+        {(searchQuery || selectedCategory !== 'all' || lowStockFilterActive) && <button type="button" onClick={() => {setSearchQuery('');setSelectedCategory('all');onClearLowStockFilter();}}>Clear filters</button>}
+      </div>
       {/* Header with Title & Primary Actions */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Raw Material Inventory Levels
+            Materials & stock
           </h2>
           <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
             {materials.length} SKUS
@@ -188,7 +191,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by code (PD080), size (4mm, 1.7mm), color, vendor..."
+              aria-label="Search inventory" placeholder="Search materials, codes or suppliers"
               className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 placeholder:text-slate-400 font-medium"
             />
           </div>

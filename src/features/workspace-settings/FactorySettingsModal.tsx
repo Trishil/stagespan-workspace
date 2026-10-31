@@ -309,7 +309,7 @@ export const FactorySettingsModal: React.FC<FactorySettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="tf-dialog-layer fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="p-6 border-b border-slate-800 flex items-center justify-between">
@@ -332,7 +332,7 @@ export const FactorySettingsModal: React.FC<FactorySettingsModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -668,7 +668,7 @@ export const FactorySettingsModal: React.FC<FactorySettingsModalProps> = ({
                     <span className="font-bold text-xs text-white">
                       {editingUserId ? 'Edit Member Access & Permissions' : 'Add New Team Member'}
                     </span>
-                    <button
+                    <button data-dialog-close
                       type="button"
                       onClick={() => { setIsEditingMember(false); setEditingUserId(null); }}
                       className="text-slate-400 hover:text-white text-xs"
@@ -841,7 +841,7 @@ export const FactorySettingsModal: React.FC<FactorySettingsModalProps> = ({
                   </div>
 
                   <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-700">
-                    <button
+                    <button data-dialog-close
                       type="button"
                       onClick={() => { setIsEditingMember(false); setEditingUserId(null); }}
                       className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-colors"
@@ -1071,7 +1071,7 @@ export const FactorySettingsModal: React.FC<FactorySettingsModalProps> = ({
         <div className="p-6 border-t border-slate-800 flex items-center justify-between bg-slate-950/60">
           <button
             type="button"
-            onClick={onClose}
+            data-dialog-close onClick={onClose}
             className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             Close

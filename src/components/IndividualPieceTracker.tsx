@@ -1156,7 +1156,7 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
 
       {/* DEFECT & ALTERATION ROUTING MODAL */}
       {isDefectModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             
             <div className="flex items-center space-x-3 pb-3 border-b border-slate-100">
@@ -1239,7 +1239,7 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
 
             {/* Action Buttons */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
-              <button
+              <button data-dialog-close
                 type="button"
                 onClick={() => setIsDefectModalOpen(false)}
                 className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
@@ -1262,7 +1262,7 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
 
       {/* QUICK ROUTE PIECE TO ALTERING MODAL */}
       {isQuickAlterModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
           <form onSubmit={handleQuickRouteAlter} className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             
             <div className="flex items-center space-x-3 pb-3 border-b border-slate-100">
@@ -1358,7 +1358,7 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
 
             {/* Action Buttons */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
-              <button
+              <button data-dialog-close
                 type="button"
                 onClick={() => setIsQuickAlterModalOpen(false)}
                 className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"

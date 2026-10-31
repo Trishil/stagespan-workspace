@@ -434,7 +434,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
       <div 
         className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden my-auto flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
@@ -460,7 +460,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
           </div>
           <button 
             id="btn-close-modal-x"
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <X className="h-5 w-5" />
@@ -1180,7 +1180,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                 Are you sure you want to permanently delete <strong className="font-bold text-red-950">{editingMaterial.name}</strong>?
               </div>
               <div className="flex items-center space-x-2">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setIsConfirmingDelete(false)}
                   className="px-2.5 py-1 text-slate-600 bg-white border border-slate-200 rounded-md font-semibold hover:bg-slate-50"
@@ -1218,7 +1218,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
               <button
                 id="btn-cancel-add-material"
                 type="button"
-                onClick={onClose}
+                data-dialog-close onClick={onClose}
                 className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
               >
                 Cancel

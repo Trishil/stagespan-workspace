@@ -1,3 +1,4 @@
+import { ActionMenu } from './ui/ActionMenu';
 import React, { useState, useMemo, useRef } from 'react';
 import { 
   Plus, 
@@ -462,6 +463,19 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         </div>
 
         <div className="flex items-center flex-wrap gap-2 w-full md:w-auto justify-end">
+          {/* Unified Add Button with Folder & Branching */}
+          <button
+            id="btn-unified-new-order-branch"
+            type="button"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all"
+            title="Create Master Order Folder (Order Slip) or Branch New Fabric Design"
+          >
+            <FolderTree className="h-4 w-4 text-slate-300" />
+            <span>New order / design</span>
+          </button>
+
+          <ActionMenu>
           {/* Quick Add Stage Column / Pipeline Masters button */}
           {(onAddStageColumn || onNavigateToMasters) && (
             <button
@@ -475,18 +489,6 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               <span>Add stage</span>
             </button>
           )}
-
-          {/* Unified Add Button with Folder & Branching */}
-          <button
-            id="btn-unified-new-order-branch"
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all"
-            title="Create Master Order Folder (Order Slip) or Branch New Fabric Design"
-          >
-            <FolderTree className="h-4 w-4 text-slate-300" />
-            <span>New order / design</span>
-          </button>
 
           <button
             id="btn-export-wf-excel"
@@ -511,7 +513,8 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               <Trash2 className="h-3.5 w-3.5 text-rose-600" />
               <span>Clear Orders</span>
             </button>
-          )}
+          )}          </ActionMenu>
+
         </div>
       </div>
 
@@ -1501,7 +1504,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
 
       {/* Quick Add Stage Column Modal */}
       {isQuickAddStageOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
+        <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95">
             <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
               <div>
@@ -1513,7 +1516,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                   Insert a new manufacturing column (e.g. Dyeing, Washing, Printing) into your factory workflow.
                 </p>
               </div>
-              <button
+              <button data-dialog-close aria-label="Close dialog"
                 type="button"
                 onClick={() => setIsQuickAddStageOpen(false)}
                 className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
@@ -1657,7 +1660,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                   </button>
                 )}
                 <div className="flex items-center space-x-2 ml-auto">
-                  <button
+                  <button data-dialog-close
                     type="button"
                     onClick={() => setIsQuickAddStageOpen(false)}
                     className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer"

@@ -133,7 +133,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
       <div 
         id="modal-stock-adjust-container"
         className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 my-auto max-h-[92vh] flex flex-col overflow-hidden"
@@ -158,7 +158,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
           </div>
           <button
             id="btn-close-stock-adjust"
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="h-4 w-4" />
@@ -507,7 +507,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
             <button
               id="btn-cancel-stock-adjust"
               type="button"
-              onClick={onClose}
+              data-dialog-close onClick={onClose}
               className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
             >
               Cancel

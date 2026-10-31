@@ -579,17 +579,7 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center flex-wrap gap-2.5 w-full lg:w-auto">
-            <button
-              id="btn-matrix-new-slip"
-              type="button"
-              onClick={onOpenCreateSlipModal}
-              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>New order slip</span>
-            </button>
-          </div>
+
         </div>
 
         {/* Aggregate KPI Grid */}
@@ -1571,7 +1561,7 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
       {editingItemBreakdown && (
         <div 
           id="modal-piece-distribution"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150"
+          className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150"
         >
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden">
             <div className="p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
@@ -1665,7 +1655,7 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
             </div>
 
             <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end space-x-3">
-              <button
+              <button data-dialog-close
                 type="button"
                 onClick={() => setEditingItemBreakdown(null)}
                 className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-white border border-slate-300 rounded-xl"

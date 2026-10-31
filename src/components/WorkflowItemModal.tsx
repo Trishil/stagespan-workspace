@@ -243,7 +243,7 @@ export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
   const isCompletedStage = item.currentStage === 'prepare_dispatch';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+    <div className="tf-dialog-layer fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
         
         {/* Modal Header */}
@@ -275,7 +275,7 @@ export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
           <button
             id="btn-close-item-modal"
             type="button"
-            onClick={onClose}
+            aria-label="Close dialog" data-dialog-close onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
@@ -1453,7 +1453,7 @@ export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
               </div>
 
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
+                <button data-dialog-close
                   type="button"
                   onClick={() => setActiveTab('details')}
                   className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
@@ -1490,7 +1490,7 @@ export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
+            data-dialog-close onClick={onClose}
             className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition-colors"
           >
             Close
