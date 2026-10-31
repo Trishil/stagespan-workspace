@@ -8,10 +8,68 @@ service cloud.firestore {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isMemberOf(companyId) {
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)) ||
+        request.auth.token.email == 'trishilbalar@gmail.com'
+      );
+    }
+
+    function isCompanyOwner(companyId) {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data.role == 'company_owner' ||
+        request.auth.token.email == 'trishilbalar@gmail.com'
+      );
+    }
+
     // Default deny rule
     match /{document=**} {
       allow read, write: if false;
     }
+
+    // Private user profiles
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Curated platform templates (Read-only for all, write restricted to platform super admin)
+    match /platformTemplates/{templateId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.token.email == 'trishilbalar@gmail.com';
+    }
+
+    // Multi-tenant Company Hierarchy
+    match /companies/{companyId} {
+      allow read: if isMemberOf(companyId) || isAuthenticated();
+      allow write: if isCompanyOwner(companyId) || (isAuthenticated() && !exists(/databases/$(database)/documents/companies/$(companyId)));
+
+      // Trusted subscription entitlements (Read by members, write restricted)
+      match /subscription/{subDoc} {
+        allow read: if isMemberOf(companyId);
+        allow write: if request.auth.token.email == 'trishilbalar@gmail.com' || 
+                     (isAuthenticated() && !exists(/databases/$(database)/documents/companies/$(companyId)/subscription/current));
+      }
+
+      // Member records
+      match /members/{memberId} {
+        allow read: if isMemberOf(companyId);
+        allow write: if isCompanyOwner(companyId) || (isAuthenticated() && memberId == request.auth.uid);
+      }
+
+      // Factory settings, workflows, jobs, and operational records
+      match /factories/{factoryId}/{document=**} {
+        allow read, write: if isMemberOf(companyId);
+      }
+    }
+
+    // ==========================================
+    // LEGACY COLLECTIONS (Backward Compatibility)
+    // Preserved for existing textile clients & floor apps
+    // ==========================================
 
     // Workflow designs & Lots collection (bidirectional web <-> mobile sync)
     match /workflow_designs/{designId} {
@@ -25,10 +83,22 @@ service cloud.firestore {
       allow write: if isValidId(slipId);
     }
 
+    // Production orders collection
+    match /production_orders/{orderId} {
+      allow read: if true;
+      allow write: if isValidId(orderId);
+    }
+
     // Inventory materials collection
     match /inventory_materials/{materialId} {
       allow read: if true;
       allow write: if isValidId(materialId);
+    }
+
+    // Factory inventory collection
+    match /factory_inventory/{itemId} {
+      allow read: if true;
+      allow write: if isValidId(itemId);
     }
 
     // Dispatch orders collection

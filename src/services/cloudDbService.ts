@@ -572,25 +572,50 @@ export async function deleteCloudWorkflowItemsBySlipId(
 
   const cleanSlipId = (slipId || '').trim();
   const cleanJobNo = (jobNo || '').trim().toLowerCase();
+  const jobClean = cleanJobNo.replace(/^job-?/i, '').trim();
 
   // 1. Collect all lot numbers associated with this slip/job to cascade-delete split lots
   const targetLotNumbers = new Set<string>();
   memoryWorkflowMap[fKey].forEach(i => {
     const itSlipId = (i.orderSlipId || '').trim();
     const itJob = (i.jobNo || '').trim().toLowerCase();
-    if ((cleanSlipId && itSlipId === cleanSlipId) || (cleanJobNo && itJob === cleanJobNo)) {
+    const itJobClean = itJob.replace(/^job-?/i, '').trim();
+    const itLot = (i.lotNumber || '').trim().toLowerCase();
+
+    const matchesSlip = cleanSlipId && itSlipId === cleanSlipId;
+    const matchesJob = cleanJobNo && (itJob === cleanJobNo || (jobClean && itJobClean === jobClean));
+    const matchesLotPrefix = jobClean && itLot.startsWith(`lot-${jobClean}-`);
+
+    if (matchesSlip || matchesJob || matchesLotPrefix) {
       if (i.lotNumber) targetLotNumbers.add(i.lotNumber);
     }
   });
+
+  // Recursive cascade for split/alteration lots
+  let addedMore = true;
+  while (addedMore) {
+    addedMore = false;
+    memoryWorkflowMap[fKey].forEach(i => {
+      const splitFrom = (i as any).splitFromLotNumber;
+      if (splitFrom && targetLotNumbers.has(splitFrom) && i.lotNumber && !targetLotNumbers.has(i.lotNumber)) {
+        targetLotNumbers.add(i.lotNumber);
+        addedMore = true;
+      }
+    });
+  }
 
   // 2. Remove matching items and any child alteration lots split from them
   memoryWorkflowMap[fKey] = memoryWorkflowMap[fKey].filter(i => {
     const itSlipId = (i.orderSlipId || '').trim();
     const itJob = (i.jobNo || '').trim().toLowerCase();
-    const isDirectMatch = (cleanSlipId && itSlipId === cleanSlipId) || (cleanJobNo && itJob === cleanJobNo);
+    const itJobClean = itJob.replace(/^job-?/i, '').trim();
+    const itLot = (i.lotNumber || '').trim().toLowerCase();
+
+    const isDirectMatch = (cleanSlipId && itSlipId === cleanSlipId) || (cleanJobNo && (itJob === cleanJobNo || (jobClean && itJobClean === jobClean))) || (jobClean && itLot.startsWith(`lot-${jobClean}-`));
+    const isTargetLot = i.lotNumber && targetLotNumbers.has(i.lotNumber);
     const splitFrom = (i as any).splitFromLotNumber;
     const isChildOfTarget = splitFrom && targetLotNumbers.has(splitFrom);
-    return !isDirectMatch && !isChildOfTarget;
+    return !isDirectMatch && !isTargetLot && !isChildOfTarget;
   });
 
   // 3. Atomically update authoritative pipeline document in a SINGLE write

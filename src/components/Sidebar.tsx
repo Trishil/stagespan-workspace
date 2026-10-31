@@ -15,9 +15,13 @@ import {
   ArrowRightLeft,
   Building2,
   Crown,
-  User
+  User,
+  Settings,
+  Globe,
+  PlusCircle
 } from 'lucide-react';
 import { AppTab, AuthUser, CompanyWorkspace } from '../types';
+import { ModuleId } from '../domain/configuration/types';
 import logoImg from '../assets/logo.png';
 import { isPlatformSuperAdmin, isPlatformOwnerTrishil } from '../services/googleAuth';
 
@@ -34,6 +38,11 @@ interface SidebarProps {
   onOpenFactorySwitcher?: () => void;
   onOpenSyncModal?: () => void;
   onOpenCreateSheet?: () => void;
+  enabledModules?: ModuleId[];
+  onOpenFactorySettings?: () => void;
+  onOpenPlatformAdmin?: () => void;
+  onOpenPublicSite?: () => void;
+  onOpenOnboarding?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -48,9 +57,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeWorkspace,
   onOpenFactorySwitcher,
   onOpenSyncModal,
-  onOpenCreateSheet
+  onOpenCreateSheet,
+  enabledModules,
+  onOpenFactorySettings,
+  onOpenPlatformAdmin,
+  onOpenPublicSite,
+  onOpenOnboarding
 }) => {
-  const isSuperAdmin = currentUser?.isSuperAdmin || isPlatformSuperAdmin(currentUser?.email);
+  const isSuperAdmin = isPlatformSuperAdmin(currentUser?.email);
   const isMasterOwner = isPlatformOwnerTrishil(currentUser?.email);
 
   const navItems = [
@@ -97,7 +111,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const hasFinancialAccess = currentUser?.role === 'owner' || currentUser?.financialAccess === true;
-  const visibleNavItems = navItems.filter(item => item.id !== 'finance' || hasFinancialAccess);
+  const isModuleEnabled = (mod: string) => !enabledModules || enabledModules.includes(mod as ModuleId);
+  const visibleNavItems = navItems.filter(item => {
+    if (!isModuleEnabled(item.id)) return false;
+    if (item.id === 'finance' && !hasFinancialAccess) return false;
+    return true;
+  });
 
   return (
     <aside
@@ -306,6 +325,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </div>
 
+        {/* Settings & Platform Admin Tools */}
+        <div className="px-3 pt-3 pb-2 space-y-1 border-t border-slate-100">
+          {!isCollapsed && (
+            <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              System &amp; Settings
+            </div>
+          )}
+
+          {onOpenFactorySettings && (
+            <button
+              type="button"
+              onClick={onOpenFactorySettings}
+              className={`w-full flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'space-x-3 px-3 py-2'} rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors`}
+              title="Factory Settings (Stages, Units, Custom Fields)"
+            >
+              <Settings className="h-4 w-4 text-slate-500 shrink-0" />
+              {!isCollapsed && <span>Factory Settings</span>}
+            </button>
+          )}
+
+          {isSuperAdmin && onOpenPlatformAdmin && (
+            <button
+              type="button"
+              onClick={onOpenPlatformAdmin}
+              className={`w-full flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'space-x-3 px-3 py-2'} rounded-xl text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors`}
+              title="Platform Administration Console"
+            >
+              <Crown className="h-4 w-4 text-amber-600 shrink-0" />
+              {!isCollapsed && <span>Platform Admin</span>}
+            </button>
+          )}
+
+          {onOpenPublicSite && (
+            <button
+              type="button"
+              onClick={onOpenPublicSite}
+              className={`w-full flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'space-x-3 px-3 py-2'} rounded-xl text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors`}
+              title="View Public SaaS Site"
+            >
+              <Globe className="h-4 w-4 text-slate-400 shrink-0" />
+              {!isCollapsed && <span>Public SaaS Tour</span>}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Bottom User & Factory Info */}

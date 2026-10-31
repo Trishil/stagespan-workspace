@@ -59,7 +59,7 @@ import {
   appendOrderSlipToGoogleSheet,
   appendDispatchOrderToGoogleSheet
 } from './services/googleSheetsApi';
-import { getStoredAuthUser, saveStoredAuthUser, getStoredSheetId, setStoredSheetId, getActiveWorkspace, isPlatformOwnerTrishil, DEFAULT_APPS_SCRIPT_URL } from './services/googleAuth';
+import { getStoredAuthUser, saveStoredAuthUser, getStoredSheetId, setStoredSheetId, getActiveWorkspace, isPlatformOwnerTrishil, isPlatformSuperAdmin, DEFAULT_APPS_SCRIPT_URL } from './services/googleAuth';
 import { 
   fetchActiveMasterWorkspace, 
   publishActiveWorkspaceToMaster, 
@@ -169,6 +169,15 @@ import { calculatePredictiveInventory } from './utils/predictiveInventory';
 import { generateUniqueMaterialId, generateUniqueBatchId } from './utils/idGenerator';
 import { CheckCircle2, FileSpreadsheet, Sparkles, ExternalLink, Trash2, Layers, Wallet, Activity, Package, ArrowDownRight, ArrowUpRight, Clock, Building2, AlertTriangle } from 'lucide-react';
 
+import { PublicMasterSite } from './features/marketing/PublicMasterSite';
+import { SetupWizard } from './features/onboarding/SetupWizard';
+import { FactorySettingsModal } from './features/workspace-settings/FactorySettingsModal';
+import { PlatformAdminPanel } from './features/platform-admin/PlatformAdminPanel';
+import { tenantRepository, resetTenantMemoryCache } from './services/repositories/tenantRepository';
+import { FactoryConfiguration } from './domain/configuration/types';
+import { TEXTILE_TEMPLATE } from './templates/textile';
+import { instantiateTemplateConfiguration } from './templates/registry';
+
 export default function App() {
   // Responsive layout state (Mobile / Desktop / Auto)
   const { isMobile, viewMode, setViewMode } = useResponsiveView();
@@ -206,6 +215,70 @@ export default function App() {
   });
   const [isFactorySwitcherOpen, setIsFactorySwitcherOpen] = useState<boolean>(false);
   const isDataEntryPaused = Boolean(activeWorkspace?.dataEntryPaused || activeWorkspace?.planStatus === 'suspended');
+
+  // Multi-Tenant SaaS Experience Routing & Configuration State
+  const [experienceMode, setExperienceMode] = useState<'public' | 'onboarding' | 'workspace'>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const exp = params.get('experience') || params.get('view');
+      if (exp === 'public') return 'public';
+      if (exp === 'onboarding') return 'onboarding';
+      const stored = localStorage.getItem('saas_experience_mode');
+      if (stored === 'public' || stored === 'onboarding') return stored;
+    } catch {}
+    return 'workspace';
+  });
+
+  const [isPlatformAdminOpen, setIsPlatformAdminOpen] = useState(false);
+  const [isFactorySettingsOpen, setIsFactorySettingsOpen] = useState(false);
+  const [activeFactoryConfig, setActiveFactoryConfig] = useState<FactoryConfiguration | null>(null);
+
+  const handleSetExperienceMode = (mode: 'public' | 'onboarding' | 'workspace') => {
+    setExperienceMode(mode);
+    try {
+      localStorage.setItem('saas_experience_mode', mode);
+      const url = new URL(window.location.href);
+      if (mode === 'workspace') {
+        url.searchParams.delete('experience');
+        url.searchParams.delete('view');
+      } else {
+        url.searchParams.set('experience', mode);
+      }
+      window.history.replaceState({}, '', url.toString());
+    } catch {}
+  };
+
+  // Load tenant configuration on activeWorkspace change
+  useEffect(() => {
+    let isCancelled = false;
+    const loadConfig = async () => {
+      const code = activeWorkspace?.code || 'TRISHARTH-HQ';
+      const companyId = activeWorkspace?.id || `comp-${code.toLowerCase()}`;
+      const factoryId = `fact-${code.toLowerCase()}`;
+      try {
+        const cfg = await tenantRepository.getFactoryConfiguration(companyId, factoryId);
+        if (!isCancelled && cfg) {
+          setActiveFactoryConfig(cfg);
+          return;
+        }
+      } catch (err) {
+        console.warn('Tenant config fetch fallback:', err);
+      }
+      if (!isCancelled) {
+        setActiveFactoryConfig(
+          instantiateTemplateConfiguration(
+            TEXTILE_TEMPLATE,
+            companyId,
+            factoryId,
+            activeWorkspace?.name || 'Trisharth',
+            code
+          )
+        );
+      }
+    };
+    loadConfig();
+    return () => { isCancelled = true; };
+  }, [activeWorkspace]);
 
   // State initialization with localStorage fallback (factory scoped)
   const [machines, setMachines] = useState<Machine[]>(() => {
@@ -651,6 +724,7 @@ export default function App() {
   };
 
   const handleSwitchWorkspace = (ws: CompanyWorkspace) => {
+    resetTenantMemoryCache();
     const norm = (c: string) => (c || '').replace(/[^A-Z0-9]/g, '').replace(/0+([0-9]+)/, '$1');
     const uNorm = norm(ws.code);
     const isAth = uNorm === 'ATH1' || ws.code === 'ATH-001' || ws.code === 'ATH001' || ws.code === 'ATH-01';
@@ -1871,6 +1945,7 @@ export default function App() {
   const handleDeleteOrderSlip = async (slipId: string, jobNo?: string) => {
     const targetSlip = orderSlips.find(s => s.id === slipId);
     const slipJob = (jobNo || targetSlip?.jobNo || slipId).trim().toLowerCase();
+    const jobClean = slipJob.replace(/^job-?/i, '').trim();
 
     // 1. Remove slip from state & localStorage
     const updatedSlips = orderSlips.filter(s => s.id !== slipId);
@@ -1882,19 +1957,43 @@ export default function App() {
     workflowItems.forEach(item => {
       const itSlipId = (item.orderSlipId || '').trim();
       const itJob = (item.jobNo || '').trim().toLowerCase();
-      if ((slipId && itSlipId === slipId) || (slipJob && itJob === slipJob)) {
+      const itJobClean = itJob.replace(/^job-?/i, '').trim();
+      const itLot = (item.lotNumber || '').trim().toLowerCase();
+
+      const matchesSlip = (slipId && itSlipId === slipId);
+      const matchesJob = slipJob && (itJob === slipJob || (jobClean && itJobClean === jobClean));
+      const matchesLotPrefix = jobClean && itLot.startsWith(`lot-${jobClean}-`);
+
+      if (matchesSlip || matchesJob || matchesLotPrefix) {
         if (item.lotNumber) deletedLotNumbers.add(item.lotNumber);
       }
     });
+
+    // Recursively collect any child lots split from deleted lots (e.g. nested ALT lots)
+    let addedMore = true;
+    while (addedMore) {
+      addedMore = false;
+      workflowItems.forEach(item => {
+        const splitFrom = (item as any).splitFromLotNumber;
+        if (splitFrom && deletedLotNumbers.has(splitFrom) && item.lotNumber && !deletedLotNumbers.has(item.lotNumber)) {
+          deletedLotNumbers.add(item.lotNumber);
+          addedMore = true;
+        }
+      });
+    }
 
     // 2. Remove all workflow items matching this slip or split from its lots from state
     const updatedItems = workflowItems.filter(item => {
       const itSlipId = (item.orderSlipId || '').trim();
       const itJob = (item.jobNo || '').trim().toLowerCase();
-      const isDirectMatch = (slipId && itSlipId === slipId) || (slipJob && itJob === slipJob);
+      const itJobClean = itJob.replace(/^job-?/i, '').trim();
+      const itLot = (item.lotNumber || '').trim().toLowerCase();
+
+      const isDirectMatch = (slipId && itSlipId === slipId) || (slipJob && (itJob === slipJob || (jobClean && itJobClean === jobClean))) || (jobClean && itLot.startsWith(`lot-${jobClean}-`));
+      const isKnownDeletedLot = item.lotNumber && deletedLotNumbers.has(item.lotNumber);
       const splitFrom = (item as any).splitFromLotNumber;
       const isChildOfDeleted = splitFrom && deletedLotNumbers.has(splitFrom);
-      return !isDirectMatch && !isChildOfDeleted;
+      return !isDirectMatch && !isKnownDeletedLot && !isChildOfDeleted;
     });
 
     setWorkflowItems(updatedItems);
@@ -3061,10 +3160,56 @@ export default function App() {
 
   // Auth gate
   if (!currentUser || !currentUser.sheetAccessGranted) {
+    if (experienceMode === 'public') {
+      return (
+        <PublicMasterSite
+          onStartOnboarding={() => handleSetExperienceMode('onboarding')}
+          onGoToLogin={() => handleSetExperienceMode('workspace')}
+          onGoToPlatformAdmin={() => setIsPlatformAdminOpen(true)}
+          isPlatformAdmin={Boolean(currentUser?.isSuperAdmin || (currentUser?.email && isPlatformSuperAdmin(currentUser.email)))}
+        />
+      );
+    }
+    if (experienceMode === 'onboarding') {
+      return (
+        <SetupWizard
+          onActivated={(cfg) => {
+            setActiveFactoryConfig(cfg);
+            handleSetExperienceMode('workspace');
+          }}
+          onCancel={() => handleSetExperienceMode('public')}
+          currentUserEmail={currentUser?.email}
+        />
+      );
+    }
     return (
       <LoginPage
         onLoginSuccess={handleLoginSuccess}
         initialSheetId={syncConfig.sheetId}
+      />
+    );
+  }
+
+  // Authenticated SaaS Experience Views
+  if (experienceMode === 'public') {
+    return (
+      <PublicMasterSite
+        onStartOnboarding={() => handleSetExperienceMode('onboarding')}
+        onGoToLogin={() => handleSetExperienceMode('workspace')}
+        onGoToPlatformAdmin={() => setIsPlatformAdminOpen(true)}
+        isPlatformAdmin={Boolean(currentUser?.isSuperAdmin || (currentUser?.email && isPlatformSuperAdmin(currentUser.email)))}
+      />
+    );
+  }
+  if (experienceMode === 'onboarding') {
+    return (
+      <SetupWizard
+        onActivated={(cfg) => {
+          setActiveFactoryConfig(cfg);
+          handleSetExperienceMode('workspace');
+        }}
+        onCancel={() => handleSetExperienceMode('workspace')}
+        currentUserEmail={currentUser?.email}
       />
     );
   }
@@ -3096,6 +3241,12 @@ export default function App() {
       });
     }
   };
+
+  const activeWf = activeFactoryConfig?.workflowVersions?.find(
+    (w) => w.versionId === activeFactoryConfig.activeWorkflowVersionId
+  ) || activeFactoryConfig?.workflowVersions?.[0];
+  const activeWorkflowStages = activeWf?.stages;
+  const isTextile = !activeFactoryConfig || activeFactoryConfig.factoryCode?.toUpperCase().includes('TRISHARTH') || (activeWorkflowStages && activeWorkflowStages.length === 10);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-slate-900 selection:text-white">
@@ -3219,6 +3370,11 @@ export default function App() {
             currentUser={currentUser}
             activeWorkspace={activeWorkspace}
             onOpenFactorySwitcher={isPlatformOwnerTrishil(currentUser?.email) ? () => setIsFactorySwitcherOpen(true) : undefined}
+            enabledModules={activeFactoryConfig?.enabledModules}
+            onOpenFactorySettings={() => setIsFactorySettingsOpen(true)}
+            onOpenPlatformAdmin={() => setIsPlatformAdminOpen(true)}
+            onOpenPublicSite={() => handleSetExperienceMode('public')}
+            onOpenOnboarding={() => handleSetExperienceMode('onboarding')}
           />
 
           <div className="flex-1 flex flex-col min-w-0 min-h-screen">
@@ -3306,7 +3462,7 @@ export default function App() {
         )}
 
         {activeMainTab === 'workflow' && (
-          /* 10-Stage Fabric Design Workflow Pipeline */
+          /* Multi-Stage Factory Workflow Pipeline */
           <WorkflowManager
             items={workflowItems}
             onUpdateStage={handleUpdateWorkflowStage}
@@ -3321,6 +3477,9 @@ export default function App() {
             onDeleteOrderSlip={handleDeleteOrderSlip}
             onClearAllOrders={handleClearAllOrders}
             isMobile={isMobile}
+            configuredStages={activeWorkflowStages}
+            activeWorkflow={activeWf}
+            isTextileWorkflow={isTextile}
           />
         )}
         
@@ -3753,6 +3912,46 @@ export default function App() {
           onTogglePauseFactory={handleTogglePauseFactory}
           onDeleteFactory={handleDeleteFactory}
           currentUser={currentUser}
+        />
+      )}
+
+      {/* Factory Configuration Settings Modal */}
+      {isFactorySettingsOpen && activeFactoryConfig && (
+        <FactorySettingsModal
+          isOpen={isFactorySettingsOpen}
+          onClose={() => setIsFactorySettingsOpen(false)}
+          config={activeFactoryConfig}
+          membership={currentUser ? {
+            userId: currentUser.id || currentUser.email,
+            email: currentUser.email || 'user@factory.local',
+            name: currentUser.name || 'Factory User',
+            companyId: activeFactoryConfig.companyId,
+            role: isPlatformSuperAdmin(currentUser.email)
+              ? 'super_admin'
+              : (currentUser.role === 'owner' || activeWorkspace.ownerEmail?.toLowerCase() === currentUser.email?.toLowerCase())
+              ? 'company_owner'
+              : (currentUser.role === 'operator' ? 'operator' : 'factory_admin'),
+            permittedFactoryIds: [activeFactoryConfig.factoryId],
+            status: 'active'
+          } : null}
+          onConfigUpdated={async (published) => {
+            setActiveFactoryConfig(published);
+            await tenantRepository.saveFactoryConfiguration(published);
+          }}
+        />
+      )}
+
+      {/* Central Platform Administration Console */}
+      {isPlatformAdminOpen && (
+        <PlatformAdminPanel
+          isOpen={isPlatformAdminOpen}
+          onClose={() => setIsPlatformAdminOpen(false)}
+          currentUserEmail={currentUser?.email}
+          isSuperAdmin={isPlatformSuperAdmin(currentUser?.email)}
+          onSelectWorkspace={(ws) => {
+            handleSwitchWorkspace(ws);
+            setIsPlatformAdminOpen(false);
+          }}
         />
       )}
 

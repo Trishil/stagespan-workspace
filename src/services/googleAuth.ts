@@ -357,24 +357,27 @@ export async function requestGoogleSignIn(
 ): Promise<{ user: AuthUser; sheetResult: VerifySheetAccessResult }> {
   const profile = await authenticateWithGoogle();
   const email = profile.email;
-  const isKnownOwner = email.toLowerCase().includes('atharvabalar') || 
-                       email.toLowerCase().includes('atharva') ||
-                       email.toLowerCase().includes('trishil') ||
-                       email.toLowerCase() === workspace.ownerEmail?.toLowerCase();
+  const isSuperAdminUser = email.toLowerCase().trim() === 'trishilbalar@gmail.com';
+  const isCompanyOwnerUser = Boolean(workspace.ownerEmail && email.toLowerCase().trim() === workspace.ownerEmail.toLowerCase().trim());
+  const isOwner = isSuperAdminUser || isCompanyOwnerUser;
 
   const authUser: AuthUser = {
     id: profile.uid || `g_${Date.now()}`,
     email,
     name: profile.name,
     picture: profile.picture,
-    role: isKnownOwner ? 'owner' : 'editor',
+    role: isOwner ? 'owner' : 'editor',
+    isSuperAdmin: isSuperAdminUser,
     companyId: workspace.id,
     companyName: workspace.name,
     companyCode: workspace.code,
     sheetAccessGranted: true,
     sheetTitle: `${workspace.name} Operations Sheet`,
     authMethod: 'google_oauth',
-    loginTimestamp: new Date().toISOString()
+    loginTimestamp: new Date().toISOString(),
+    webAccess: true,
+    mobileAccess: true,
+    financialAccess: isOwner
   };
 
   return {
@@ -725,15 +728,13 @@ export function findWorkspaceByCode(code: string): CompanyWorkspace | undefined 
 }
 
 export const PLATFORM_SUPER_ADMIN_EMAILS = [
-  'atharvabalar6@gmail.com',
-  'trishilbalar@gmail.com',
-  'drlaljirpatel@gmail.com'
+  'trishilbalar@gmail.com'
 ];
 
 export function isPlatformSuperAdmin(email?: string): boolean {
   if (!email) return false;
   const clean = email.trim().toLowerCase();
-  return PLATFORM_SUPER_ADMIN_EMAILS.includes(clean);
+  return clean === 'trishilbalar@gmail.com';
 }
 
 export function isPlatformOwnerTrishil(email?: string): boolean {

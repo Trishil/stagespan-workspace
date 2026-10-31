@@ -7,7 +7,8 @@ import {
   ArrowRight, 
   ArrowLeft, 
   Sparkles, 
-  AlertTriangle, 
+  AlertTriangle,
+  AlertCircle,
   CheckCircle2, 
   Clock, 
   ChevronLeft, 
@@ -43,9 +44,14 @@ import {
   FolderPlus,
   GitBranch,
   Users,
-  Share2
+  Share2,
+  Hammer,
+  Truck,
+  Boxes,
+  Factory
 } from 'lucide-react';
 import { WorkflowItem, WorkflowStageId, OrderSlip } from '../types';
+import { StageDefinitionConfig, WorkflowVersion } from '../domain/configuration/types';
 import { 
   WORKFLOW_STAGES, 
   getNextStage, 
@@ -80,6 +86,9 @@ interface WorkflowManagerProps {
   onDeleteOrderSlip?: (slipId: string, jobNo?: string) => void;
   onClearAllOrders?: () => void;
   isMobile?: boolean;
+  configuredStages?: StageDefinitionConfig[];
+  activeWorkflow?: WorkflowVersion;
+  isTextileWorkflow?: boolean;
 }
 
 export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
@@ -95,10 +104,41 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   onSaveOrderSlip: propOnSaveOrderSlip,
   onDeleteOrderSlip,
   onClearAllOrders,
-  isMobile = false
+  isMobile = false,
+  configuredStages,
+  activeWorkflow,
+  isTextileWorkflow = true
 }) => {
   // View mode tab: Matrix vs Individual Piece Tracker vs Kanban vs Party Slips
-  const [viewMode, setViewMode] = useState<'matrix' | 'pieces' | 'kanban' | 'slips'>('matrix');
+  const [viewMode, setViewMode] = useState<'matrix' | 'pieces' | 'kanban' | 'slips'>(
+    isTextileWorkflow ? 'matrix' : 'kanban'
+  );
+
+  const stagesFromConfig = activeWorkflow?.stages || configuredStages;
+  const effectiveStages = useMemo(() => {
+    if (stagesFromConfig && stagesFromConfig.length >= 2) {
+      return stagesFromConfig.map((cs, idx) => ({
+        id: cs.id,
+        stepNumber: cs.order || idx + 1,
+        name: cs.label || cs.id,
+        shortName: cs.shortName || cs.label || cs.id,
+        description: cs.description || '',
+        color: cs.color || {
+          bg: 'bg-slate-50',
+          border: 'border-slate-200',
+          text: 'text-slate-900',
+          badge: 'bg-slate-100 text-slate-800',
+          headerBg: 'bg-slate-100'
+        },
+        iconName: cs.iconName || 'Layers',
+        stageKind: cs.stageKind,
+        allowedTransitions: cs.allowedTransitionStageIds,
+        reworkStageId: cs.reworkStageId,
+        isTerminalCompletion: cs.isTerminalCompletion
+      }));
+    }
+    return WORKFLOW_STAGES;
+  }, [stagesFromConfig]);
 
   // Local Order Slips state fallback
   const [localOrderSlips, setLocalOrderSlips] = useState<OrderSlip[]>(() => {
@@ -242,6 +282,10 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
       case 'Wrench': return <Wrench className={className} />;
       case 'Layers': return <Layers className={className} />;
       case 'PackageCheck': return <PackageCheck className={className} />;
+      case 'Hammer': return <Hammer className={className} />;
+      case 'Truck': return <Truck className={className} />;
+      case 'Boxes': return <Boxes className={className} />;
+      case 'Factory': return <Factory className={className} />;
       default: return <Layers className={className} />;
     }
   };
@@ -359,7 +403,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             }`}
           >
             <Grid className="h-4 w-4" />
-            <span>10-Stage Kanban</span>
+            <span>{effectiveStages.length}-Stage Kanban</span>
           </button>
 
           <button
@@ -418,6 +462,42 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
       </div>
 
       {/* VIEW 1: FABRIC TYPE & COLOR STAGE MATRIX */}
+      {/* Orphaned / Unlinked Designs Alert Banner */}
+      {currentOrderSlips.length === 0 && effectiveItems.length > 0 && (
+        <div className="p-3.5 mx-4 sm:mx-6 mb-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs animate-in fade-in">
+          <div className="flex items-center space-x-2.5">
+            <div className="p-1.5 rounded-lg bg-amber-200/80 text-amber-800">
+              <AlertCircle className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="font-bold text-amber-950">
+                Floor Notice: {effectiveItems.length} design card(s) active on pipeline with 0 Party Order Slips
+              </p>
+              <p className="text-[11px] text-amber-800 mt-0.5">
+                These cards (e.g. alteration split lots) remained in the floor pipeline from previously deleted order slips.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm(`Purge all ${effectiveItems.length} leftover designs from the floor pipeline?`)) {
+                  if (onClearAllOrders) {
+                    onClearAllOrders();
+                  } else {
+                    effectiveItems.forEach(it => onDeleteItem(it.id));
+                  }
+                }
+              }}
+              className="px-3.5 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+            >
+              Purge Leftover Designs
+            </button>
+          </div>
+        </div>
+      )}
+
       {viewMode === 'matrix' && (
         <FabricColorStageMatrix
           items={items}
@@ -670,10 +750,10 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             <div>
               <div className="flex items-center space-x-2">
                 <h1 className="text-lg font-black tracking-tight text-slate-900">
-                  Fabric Design Stage Workflow
+                  {isTextileWorkflow ? 'Fabric Design Stage Workflow' : 'Production Stage Workflow'}
                 </h1>
                 <span className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-mono font-bold uppercase">
-                  10 Stages Kanban
+                  {effectiveStages.length} Stages Kanban
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -778,8 +858,8 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               onChange={(e) => setSelectedStageFilter(e.target.value)}
               className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              <option value="all">All 10 Stages</option>
-              {WORKFLOW_STAGES.map(s => (
+              <option value="all">All {effectiveStages.length} Stages</option>
+              {effectiveStages.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.name}
                 </option>
@@ -862,7 +942,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         className="flex space-x-4 overflow-x-auto pb-6 pt-1 select-none scrollbar-thin scrollbar-thumb-slate-300"
         style={{ minHeight: '620px' }}
       >
-        {WORKFLOW_STAGES.map((stage) => {
+        {effectiveStages.map((stage) => {
           const stageItems = filteredItems.filter(it => normalizeStageForWeb(it.currentStage) === stage.id);
           const isOver = dragOverStageId === stage.id;
           const stageTotalUnits = stageItems.reduce((acc, it) => acc + it.quantity, 0);
@@ -1001,6 +1081,21 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                               title="Click / Upload Design Photo"
                             >
                               <Camera className="h-3.5 w-3.5" />
+                            </button>
+
+                            {/* Direct Card Delete Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (window.confirm(`Delete design card "${item.lotNumber || item.designNumber || item.jobNo}"?`)) {
+                                  onDeleteItem(item.id);
+                                }
+                              }}
+                              className="p-1 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+                              title="Delete Design Card"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
                             </button>
 
                             {/* Priority Badge */}
@@ -1221,10 +1316,10 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               <ChevronLeft className="h-4 w-4" />
             </button>
             <span className="text-[11px] font-mono text-slate-300 font-bold px-1 hidden sm:inline">
-              10-Stage Pipeline
+              {effectiveStages.length}-Stage Pipeline
             </span>
             <div className="flex items-center space-x-1">
-              {WORKFLOW_STAGES.map((stg) => (
+              {effectiveStages.map((stg) => (
                 <button
                   key={stg.id}
                   type="button"
