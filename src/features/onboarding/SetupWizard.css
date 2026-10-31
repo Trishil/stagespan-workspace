@@ -1,0 +1,23 @@
+/* Keep the existing setup operations; align their presentation with Textflow. */
+.tf-setup{font-family:'Textflow Geist',Arial,sans-serif!important;background:#f3f0e7!important;color:#283222!important}
+.tf-setup>div:first-child{background:#1b2116!important;border-color:#ffffff26!important;padding:23px 5%!important}
+.tf-setup>div:first-child h1{font-family:'Textflow Geist',Arial,sans-serif;font-weight:500;font-size:15px}
+.tf-setup>div:first-child p{color:#b6bba8!important}
+.tf-setup>div:first-child button{color:#e7e8d9!important}
+.tf-setup>div:first-child h1 span{color:#e7e8d9!important}
+.tf-setup>div:first-child .bg-indigo-600{background:#c9af79!important;color:#172013!important;border-radius:2px}
+.tf-setup>div:nth-child(2){padding:48px 5%;max-width:1080px}
+.tf-setup>div:nth-child(2) [class*="bg-slate-"]{background:#faf8f2!important}
+.tf-setup>div:nth-child(2) :is(h2,h3){font-family:'Textflow Editorial',Georgia,serif!important;font-weight:400!important;color:#263120!important;letter-spacing:-.02em}
+.tf-setup>div:nth-child(2) h2{font-size:39px!important;line-height:1.1}
+.tf-setup>div:nth-child(2) [class*="text-slate-"],.tf-setup>div:nth-child(2) [class*="text-white"]{color:#68715c!important}
+.tf-setup>div:nth-child(2) label{color:#404c34!important;font-size:12px!important}
+.tf-setup>div:nth-child(2) :is(input,select,textarea){background:#faf8f2!important;color:#263120!important;border:1px solid #747b5940!important;border-radius:3px!important;font:400 13px 'Textflow Geist',Arial,sans-serif!important;min-height:46px}
+.tf-setup>div:nth-child(2) [class*="border-slate-"]{border-color:#747b5930!important}
+.tf-setup>div:nth-child(2) button[class*="bg-indigo-600"],.tf-setup>div:nth-child(2) button[class*="bg-emerald-600"]{background:#2d3824!important;color:#f3f0e7!important;border-radius:3px!important}
+.tf-setup>div:nth-child(2) button[class*="bg-indigo-600"] span,.tf-setup>div:nth-child(2) button[class*="bg-emerald-600"] span{color:#f3f0e7!important}
+.tf-setup>div:nth-child(2) [class*="text-indigo-"]{color:#63734e!important}
+.tf-setup>div:nth-child(2) [class*="border-indigo-"]{border-color:#88946a!important}
+.tf-setup>div:nth-child(2) [class*="bg-indigo-"]{background:#e5e9d8!important}
+.tf-setup>div:nth-child(2) p{line-height:1.8;font-size:13px}
+@media(max-width:700px){.tf-setup>div:first-child{padding:20px 6%!important}.tf-setup>div:nth-child(2){padding:35px 6%}.tf-setup>div:nth-child(2) h2{font-size:33px!important}}

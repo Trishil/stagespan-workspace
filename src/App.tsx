@@ -169,7 +169,8 @@ import { calculatePredictiveInventory } from './utils/predictiveInventory';
 import { generateUniqueMaterialId, generateUniqueBatchId } from './utils/idGenerator';
 import { CheckCircle2, FileSpreadsheet, Sparkles, ExternalLink, Trash2, Layers, Wallet, Activity, Package, ArrowDownRight, ArrowUpRight, Clock, Building2, AlertTriangle } from 'lucide-react';
 
-import { PublicMasterSite } from './features/marketing/PublicMasterSite';
+import { BROCHURE_URL } from './config/experienceUrls';
+import { resolveLoginWorkspace } from './services/sessionWorkspace';
 import { SetupWizard } from './features/onboarding/SetupWizard';
 import { FactorySettingsModal } from './features/workspace-settings/FactorySettingsModal';
 import { PlatformAdminPanel } from './features/platform-admin/PlatformAdminPanel';
@@ -180,16 +181,22 @@ import { UserMembership } from './domain/permissions/types';
 import { TEXTILE_TEMPLATE } from './templates/textile';
 import { instantiateTemplateConfiguration } from './templates/registry';
 
-export default function App() {
+interface AppProps { initialLogin?: { user: AuthUser; sheetId: string } }
+
+export default function App({ initialLogin }: AppProps = {}) {
   // Responsive layout state (Mobile / Desktop / Auto)
   const { isMobile, viewMode, setViewMode } = useResponsiveView();
   // Authentication State
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
-    return getStoredAuthUser();
+    return initialLogin?.user || getStoredAuthUser();
   });
 
   // Multi-Factory Workspace state
   const [activeWorkspace, setActiveWorkspace] = useState<CompanyWorkspace>(() => {
+    if (initialLogin) {
+      const selected = resolveLoginWorkspace(initialLogin.user, initialLogin.sheetId, getStoredWorkspaces());
+      if (selected) return selected;
+    }
     try {
       const saved = localStorage.getItem('active_factory_workspace');
       if (saved) {
@@ -225,8 +232,9 @@ export default function App() {
       const exp = params.get('experience') || params.get('view');
       if (exp === 'public' || exp === 'story') return 'public';
       if (exp === 'onboarding') return 'onboarding';
+      if (exp === 'workspace') return 'workspace';
       const stored = localStorage.getItem('saas_experience_mode');
-      if (stored === 'public' || stored === 'story') return 'public';
+      if (stored === 'public' || stored === 'story') return 'workspace';
       if (stored === 'onboarding') return stored;
     } catch {}
     return 'workspace';
@@ -237,6 +245,7 @@ export default function App() {
   const [activeFactoryConfig, setActiveFactoryConfig] = useState<FactoryConfiguration | null>(null);
 
   const handleSetExperienceMode = (mode: 'public' | 'onboarding' | 'workspace') => {
+    if (mode === 'public') { window.location.assign(BROCHURE_URL); return; }
     setExperienceMode(mode);
     try {
       localStorage.setItem('saas_experience_mode', mode);
@@ -245,7 +254,7 @@ export default function App() {
         url.searchParams.delete('experience');
         url.searchParams.delete('view');
       } else {
-        url.searchParams.set('experience', 'public');
+        url.searchParams.set('experience', mode);
         url.searchParams.delete('view');
       }
       window.history.replaceState({}, '', url.toString());
@@ -305,7 +314,7 @@ export default function App() {
 
   const [syncConfig, setSyncConfig] = useState<SyncConfig>(() => {
     const saved = localStorage.getItem('factory_sync_config');
-    const storedId = getStoredSheetId();
+    const storedId = initialLogin?.sheetId || getStoredSheetId();
     const base = saved ? JSON.parse(saved) : { ...INITIAL_SYNC_CONFIG };
     if (!base.scriptUrl) {
       base.scriptUrl = INITIAL_SYNC_CONFIG.scriptUrl;
@@ -674,31 +683,8 @@ export default function App() {
       companyCode: user.companyCode || 'TRISHARTH-HQ'
     }).catch(() => {});
 
-    if (user.companyCode) {
-      const norm = (c: string) => (c || '').replace(/[^A-Z0-9]/g, '').replace(/0+([0-9]+)/, '$1');
-      const uNorm = norm(user.companyCode);
-      const isAth = uNorm === 'ATH1' || user.companyCode === 'ATH-001' || user.companyCode === 'ATH001' || user.companyCode === 'ATH-01';
-      const canonicalCode = isAth ? 'ATH-01' : user.companyCode;
-      const canonicalName = isAth ? 'Atharva Textiles' : (user.companyName || user.companyCode);
-
-      const foundFactory = factories.find(f => 
-        f.code.toUpperCase() === canonicalCode.toUpperCase() ||
-        norm(f.code) === uNorm ||
-        norm(f.id) === uNorm
-      );
-      const userFactory: CompanyWorkspace = foundFactory ? {
-        ...foundFactory,
-        code: isAth ? 'ATH-01' : foundFactory.code,
-        name: isAth ? 'Atharva Textiles' : foundFactory.name
-      } : {
-        id: user.companyId || `factory_${canonicalCode.toLowerCase()}`,
-        name: canonicalName,
-        code: canonicalCode,
-        sheetId,
-        scriptUrl: DEFAULT_APPS_SCRIPT_URL,
-        isPrimary: canonicalCode.toUpperCase() === 'TRISHARTH-HQ',
-        ownerEmail: user.email || ''
-      };
+    const userFactory = resolveLoginWorkspace(user, sheetId, factories);
+    if (userFactory) {
       setActiveWorkspace(userFactory);
       localStorage.setItem('active_factory_workspace', JSON.stringify(userFactory));
     }
@@ -716,6 +702,14 @@ export default function App() {
     }));
     confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
   };
+
+  const initialLoginApplied = useRef(false);
+  useEffect(() => {
+    if (initialLogin && !initialLoginApplied.current) {
+      initialLoginApplied.current = true;
+      handleLoginSuccess(initialLogin.user, initialLogin.sheetId);
+    }
+  }, [initialLogin]);
 
   const handleSignOut = () => {
     setCurrentUser(null);
@@ -3164,16 +3158,7 @@ export default function App() {
 
   // Auth gate
   if (!currentUser || !currentUser.sheetAccessGranted) {
-    if (experienceMode === 'public') {
-      return (
-        <PublicMasterSite
-          onStartOnboarding={() => handleSetExperienceMode('onboarding')}
-          onGoToLogin={() => handleSetExperienceMode('workspace')}
-          onGoToPlatformAdmin={() => setIsPlatformAdminOpen(true)}
-          isPlatformAdmin={Boolean(currentUser?.isSuperAdmin || (currentUser?.email && isPlatformSuperAdmin(currentUser.email)))}
-        />
-      );
-    }
+    if (experienceMode === 'public') { return <a href={BROCHURE_URL}>Open the Textflow website</a>; }
     if (experienceMode === 'onboarding') {
       return (
         <SetupWizard
@@ -3195,16 +3180,7 @@ export default function App() {
   }
 
   // Authenticated SaaS Experience Views
-  if (experienceMode === 'public') {
-    return (
-      <PublicMasterSite
-        onStartOnboarding={() => handleSetExperienceMode('onboarding')}
-        onGoToLogin={() => handleSetExperienceMode('workspace')}
-        onGoToPlatformAdmin={() => setIsPlatformAdminOpen(true)}
-        isPlatformAdmin={Boolean(currentUser?.isSuperAdmin || (currentUser?.email && isPlatformSuperAdmin(currentUser.email)))}
-      />
-    );
-  }
+  if (experienceMode === 'public') { return <a href={BROCHURE_URL}>Open the Textflow website</a>; }
   if (experienceMode === 'onboarding') {
     return (
       <SetupWizard

@@ -14,10 +14,11 @@ import {
   EyeOff,
   ShieldAlert
 } from 'lucide-react';
-import logoImg from '../assets/logo.png';
+import { AccountShell } from '../features/account/AccountShell';
 import { AuthUser, CompanyWorkspace, EmployeeRecord } from '../types';
 import { 
   authenticateWithGoogle,
+  preloadGoogleSignIn,
   findWorkspaceByEmail,
   createPresetSession, 
   TRISHARTH_WORKSPACE,
@@ -29,8 +30,8 @@ import {
   getEffectiveOAuthClientId
 } from '../services/googleAuth';
 import { logEmployeeLoginToMaster } from '../services/masterRegistryService';
-import { fetchCloudFinanceEmployees, fetchAllCloudEmployees } from '../services/cloudDbService';
-import { computeEmployeePassword } from './FinanceManager';
+
+import { computeEmployeePassword } from '../utils/employeeCredentials';
 import { INITIAL_EMPLOYEES } from '../data/initialData';
 
 interface LoginPageProps {
@@ -42,7 +43,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onLoginSuccess
 }) => {
   // Main view: 'login' | 'signup'
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>(() => { const p = new URLSearchParams(window.location.search); return p.get('auth') === 'register' || p.get('experience') === 'onboarding' ? 'signup' : 'login'; });
   
   // Sign up sub-view: 'register_company' | 'join_company' (Default: 'register_company' so Register a New Factory is constant)
   const [signupType, setSignupType] = useState<'register_company' | 'join_company'>('register_company');
@@ -114,7 +115,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       // Fetch real-time active employees from Firestore for this factory
       let activeEmployees: EmployeeRecord[] = [];
       try {
-        activeEmployees = await fetchCloudFinanceEmployees(workspace.code);
+        activeEmployees = await (await import('../services/cloudDbService')).fetchCloudFinanceEmployees(workspace.code);
       } catch (err) {
         console.warn('Could not fetch cloud finance employees (possible offline or ad-blocker):', err);
         try {
@@ -474,7 +475,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       }
 
       // 2. Check Registered Employees across all factory directories in Firestore
-      const allCloudRecords = await fetchAllCloudEmployees();
+      const allCloudRecords = await (await import('../services/cloudDbService')).fetchAllCloudEmployees();
       const matchedRecord = allCloudRecords.find(rec => 
         rec.employee.googleEmail && rec.employee.googleEmail.trim().toLowerCase() === googleEmail
       );
@@ -650,404 +651,46 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     }
   };
 
-  const isTrisharthCode = companyCode.trim().toUpperCase() === 'TRISHARTH-HQ' || companyCode.trim().toUpperCase() === 'TRISHARTH';
+  const selectAccountMode = (mode: 'login' | 'signup') => {
+    setAuthMode(mode); setErrorMessage(null); setSuccessMessage(null);
+    if (mode === 'signup') setSignupType('register_company');
+    const url = new URL(window.location.href);
+    url.searchParams.set('experience', 'workspace');
+    if (mode === 'signup') url.searchParams.set('auth', 'register');
+    else url.searchParams.delete('auth');
+    window.history.replaceState({}, '', url);
+  };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between font-sans selection:bg-blue-600 selection:text-white">
-      
-      {/* Background dot pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-        style={{ backgroundImage: 'radial-gradient(#0f172a 1px, transparent 1px)', backgroundSize: '20px 20px' }}
-      />
-
-      {/* Top Navbar */}
-      <header className="relative z-10 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center p-1 shadow-xs shrink-0 text-white">
-              <Building2 className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <span className="text-lg font-black tracking-tight text-slate-900 font-mono">
-                Trisharth
-              </span>
-              <span className="ml-2 text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
-                Textile ERP
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-1.5 text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 font-medium">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-            <span>Secure Cloud Access</span>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Centered Card */}
-      <main className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6 my-6">
-        <div className="max-w-md w-full">
-          
-          {/* Pure White Card */}
-          <div className="bg-white border border-slate-200/90 shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] rounded-3xl p-7 sm:p-9">
-            
-            {/* Header / Title */}
-            <div className="text-center mb-6">
-              <div className="h-14 w-14 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md">
-                {authMode === 'login' ? (
-                  <Building2 className="h-7 w-7 text-white" />
-                ) : (
-                  <Building2 className="h-7 w-7 text-white" />
-                )}
-              </div>
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight font-mono">
-                {authMode === 'login' ? 'Sign In to Workspace' : 'Register a New Factory'}
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                {authMode === 'login' 
-                  ? 'Enter your Company Code, Employee ID & Password' 
-                  : 'Set up an independent, private workspace for your manufacturing plant'}
-              </p>
-            </div>
-
-            {/* Segmented Switcher: Log In | Register Factory */}
-            <div className="flex p-1 bg-slate-100/80 rounded-xl mb-6 border border-slate-200/60">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('login');
-                  setErrorMessage(null);
-                }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
-                  authMode === 'login'
-                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Log In
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('signup');
-                  setSignupType('register_company');
-                  setErrorMessage(null);
-                }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
-                  authMode === 'signup'
-                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Register a New Factory
-              </button>
-            </div>
-
-            {/* Alert / Error Messages */}
-            {errorMessage && (
-              <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start space-x-2 animate-in fade-in">
-                <AlertCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
-                <span className="leading-relaxed">{errorMessage}</span>
-              </div>
-            )}
-
-            {successMessage && (
-              <div className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start space-x-2 animate-in fade-in">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="leading-relaxed">{successMessage}</span>
-              </div>
-            )}
-
-            {/* Loading Banner */}
-            {isLoading && (
-              <div className="mb-5 p-4 rounded-xl bg-blue-50 border border-blue-200 text-center animate-pulse">
-                <RefreshCw className="h-5 w-5 text-blue-600 animate-spin mx-auto mb-1.5" />
-                <p className="text-xs font-semibold text-blue-800">{authStep}</p>
-              </div>
-            )}
-
-            {/* ========================================================================= */}
-            {/* VIEW 1: LOG IN WITH SECURE EMPLOYEE CREDENTIALS */}
-            {/* ========================================================================= */}
-            {authMode === 'login' && (
-              <form onSubmit={handleLoginSubmit} className="space-y-4">
-                
-                {/* Company Code Input */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Company Code
-                  </label>
-                  <div className="relative">
-                    <Building2 className="h-4 w-4 text-slate-400 absolute left-3.5 top-3" />
-                    <input
-                      type="text"
-                      required
-                      value={companyCode}
-                      onChange={(e) => setCompanyCode(e.target.value.toUpperCase())}
-                      placeholder="Enter Company Code (e.g. ATH-01)"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-mono font-bold uppercase text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 tracking-wide"
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-500 mt-1">
-                    Unique company code assigned to your factory workspace.
-                  </p>
-                </div>
-
-                {/* Employee ID or Registered Email */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Employee ID or Registered Email
-                  </label>
-                  <div className="relative">
-                    <User className="h-4 w-4 text-slate-400 absolute left-3.5 top-3" />
-                    <input
-                      type="text"
-                      required
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="e.g. EMP-001 or Employee ID"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
-                    />
-                  </div>
-                </div>
-
-                {/* Login Password Input */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <KeyRound className="h-4 w-4 text-slate-400 absolute left-3.5 top-3" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="firstname@DDMM"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-10 py-2.5 text-xs font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 p-0.5"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-slate-500 mt-1">
-                    Default format: <span className="font-mono font-semibold text-slate-700">firstname@DDMM</span> (first name in lowercase + @ + DDMM of birth date).
-                  </p>
-                </div>
-
-                {/* Sign In Primary Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center space-x-2 disabled:opacity-50"
-                >
-                  <span>Sign In with Credentials</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-
-                {/* Divider */}
-                <div className="relative my-4 text-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
-                  <span className="relative bg-white px-3 text-[11px] font-medium text-slate-400">
-                    or authenticate with
-                  </span>
-                </div>
-
-                {/* Google Sign In Button */}
-                <button
-                  type="button"
-                  disabled={isLoading}
-                  onClick={handleGoogleSignIn}
-                  className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center space-x-2.5"
-                >
-                  <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                  </svg>
-                  <span>Google Account (Authorized Access Only)</span>
-                </button>
-              </form>
-            )}
-
-            {/* ========================================================================= */}
-            {/* VIEW 2: REGISTER NEW FACTORY FORM (CONSTANT ON SIGN UP) */}
-            {/* ========================================================================= */}
-            {authMode === 'signup' && (
-              <form onSubmit={handleRegisterCompanySubmit} className="space-y-3.5">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Company / Factory Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={regCompanyName}
-                    onChange={(e) => setRegCompanyName(e.target.value)}
-                    placeholder="e.g. Apex Textile Mills"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Company Code (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={regCompanyCode}
-                      onChange={(e) => setRegCompanyCode(e.target.value.toUpperCase())}
-                      placeholder="e.g. APEX-01"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-900 placeholder-slate-400 uppercase focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Owner Name
-                    </label>
-                    <input
-                      type="text"
-                      value={regOwnerName}
-                      onChange={(e) => setRegOwnerName(e.target.value)}
-                      placeholder="e.g. Rajesh Shah"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Owner Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={regOwnerEmail}
-                    onChange={(e) => setRegOwnerEmail(e.target.value)}
-                    placeholder="e.g. owner@apextextiles.com"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-
-                {/* Master Owner Password Input */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Master Owner Password *
-                  </label>
-                  <div className="relative">
-                    <KeyRound className="h-4 w-4 text-slate-400 absolute left-3.5 top-3" />
-                    <input
-                      type={showRegPassword ? 'text' : 'password'}
-                      required
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      placeholder="Create master factory password"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-10 py-2.5 text-xs font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowRegPassword(!showRegPassword)}
-                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 p-0.5"
-                    >
-                      {showRegPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-slate-500 mt-1">
-                    Used with your Company Code to log in across web and mobile platforms.
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Google Sheet ID (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={regSheetId}
-                    onChange={(e) => setRegSheetId(e.target.value)}
-                    placeholder="Leave blank to auto-generate"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 mt-2"
-                >
-                  <Building2 className="h-4 w-4" />
-                  <span>Register Factory &amp; Launch Workspace</span>
-                </button>
-              </form>
-            )}
-
-          </div>
-
-          {/* Footer Note */}
-          <div className="mt-6 text-center text-xs text-slate-500">
-            <span>Powered by <strong>TextileFlow</strong> • Private Industrial Cloud</span>
-          </div>
-
-          {/* OAuth Diagnostics & Client ID Manager (Expandable) */}
-          <div className="mt-4 p-3 bg-white/80 rounded-xl border border-slate-200 text-slate-700 text-xs">
-            <details className="cursor-pointer">
-              <summary className="font-bold text-slate-700 select-none flex items-center justify-between text-[11px]">
-                <span className="flex items-center space-x-1.5 text-blue-600">
-                  <KeyRound className="h-3.5 w-3.5" />
-                  <span>Google OAuth Diagnostics &amp; Client ID Manager</span>
-                </span>
-                <span className="text-[10px] text-slate-500">Configure</span>
-              </summary>
-              
-              <div className="mt-3 pt-3 border-t border-slate-100 space-y-2.5 text-[11px]">
-                <div>
-                  <span className="text-slate-500 block font-semibold">Current Browser Origin (Whitelist in Google Cloud):</span>
-                  <code className="bg-slate-100 text-slate-800 px-2 py-1 rounded text-[10px] font-mono select-all block mt-0.5 break-all">
-                    {typeof window !== 'undefined' ? window.location.origin : 'https://textileflow.ai.studio'}
-                  </code>
-                </div>
-
-                <div>
-                  <span className="text-slate-500 block font-semibold">Active OAuth Client ID:</span>
-                  <code className="bg-slate-100 text-slate-800 px-2 py-1 rounded text-[10px] font-mono select-all block mt-0.5 break-all">
-                    {getEffectiveOAuthClientId()}
-                  </code>
-                </div>
-
-                <div className="pt-1">
-                  <span className="text-slate-600 font-semibold block mb-1">Active Client ID:</span>
-                  <div className="p-2 rounded-lg border border-emerald-500 bg-emerald-50 text-emerald-900 text-[10px] font-mono">
-                    <span className="block font-bold text-emerald-800">✓ Google Cloud Project (735454245560)</span>
-                    <span className="text-[9px] text-emerald-700 truncate block mt-0.5">735454245560-jorlpsur6poq88o942h0330n98mcs8o0.apps.googleusercontent.com</span>
-                  </div>
-                </div>
-              </div>
-            </details>
-          </div>
-
-        </div>
-      </main>
-
-      {/* Global Bottom Bar */}
-      <footer className="relative z-10 py-3 text-center text-slate-500 text-[11px] border-t border-slate-200 bg-white/60">
-        <div className="max-w-5xl mx-auto px-4 flex items-center justify-between text-[11px]">
-          <span>© 2026 TextileFlow Industrial Cloud</span>
-          <div className="flex items-center space-x-3 text-slate-600">
-            <span className="flex items-center space-x-1 text-emerald-600 font-medium">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>Multi-Tenant Data Isolated</span>
-            </span>
-          </div>
-        </div>
-      </footer>
-    </div>
+    <AccountShell mode={authMode}>
+      <p className="tf-account-eyebrow">YOUR TEXTFLOW WORKSPACE</p>
+      <h1>{authMode === 'login' ? <>Welcome<br /><em>back.</em></> : <>A workspace<br /><em>of your own.</em></>}</h1>
+      <p className="tf-account-intro">{authMode === 'login' ? 'Sign in to pick up where your team left off.' : 'Create a home for your factory’s stages, materials and orders.'}</p>
+      <div className="tf-account-tabs" aria-label="Account options">
+        <button type="button" aria-pressed={authMode === 'login'} onClick={() => selectAccountMode('login')}>Sign in</button>
+        <button type="button" aria-pressed={authMode === 'signup'} onClick={() => selectAccountMode('signup')}>Create a workspace</button>
+      </div>
+      {errorMessage && <div className="tf-account-alert" role="alert">{errorMessage}</div>}
+      {successMessage && <div className="tf-account-alert is-success" role="status">{successMessage}</div>}
+      {isLoading && <p className="tf-account-progress" role="status">{authStep || 'Preparing your workspace…'}</p>}
+      {authMode === 'login' ? <form className="tf-account-form" onSubmit={handleLoginSubmit}>
+        <div className="tf-account-field"><label htmlFor="account-company">Company code</label><input id="account-company" name="companyCode" required value={companyCode} onChange={e => setCompanyCode(e.target.value.toUpperCase())} placeholder="Your factory’s company code" autoComplete="organization" autoCapitalize="characters" disabled={isLoading} /><p className="tf-account-help">You’ll find this in your workspace invitation or from your administrator.</p></div>
+        <div className="tf-account-field"><label htmlFor="account-identifier">Email or employee ID</label><input id="account-identifier" name="username" required value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="you@company.com or employee ID" autoComplete="username" autoCapitalize="none" spellCheck={false} disabled={isLoading} /></div>
+        <div className="tf-account-field"><label htmlFor="account-password">Password</label><div className="tf-account-input-wrap"><input id="account-password" name="password" className="tf-account-password" type={showPassword ? 'text' : 'password'} required value={loginPassword} onChange={e => setLoginPassword(e.target.value)} placeholder="Enter your password" autoComplete="current-password" disabled={isLoading} /><button className="tf-account-password-toggle" type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button></div></div>
+        <button className="tf-account-submit" type="submit" disabled={isLoading}>{isLoading ? 'Signing in…' : 'Sign in to workspace'}<ArrowRight size={16} /></button>
+        <div className="tf-account-divider"><span>or continue with</span></div>
+        <button className="tf-account-google" type="button" onPointerEnter={() => { void preloadGoogleSignIn().catch(() => {}); }} onFocus={() => { void preloadGoogleSignIn().catch(() => {}); }} onClick={handleGoogleSignIn} disabled={isLoading}><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 2.09 1.43 6.44l4.41 3.42C6.71 7.31 9.14 5.38 12 5.38z"/></svg>Google</button>
+        <p className="tf-account-help">Use the Google account connected to your workspace.</p>
+      </form> : <form className="tf-account-form" onSubmit={handleRegisterCompanySubmit}>
+        <div className="tf-account-field"><label htmlFor="register-company">Company or factory name</label><input id="register-company" name="organization" required value={regCompanyName} onChange={e => setRegCompanyName(e.target.value)} placeholder="Your company name" autoComplete="organization" disabled={isLoading} /></div>
+        <div className="tf-account-field-row"><div className="tf-account-field"><label htmlFor="register-owner">Your name</label><input id="register-owner" name="name" value={regOwnerName} onChange={e => setRegOwnerName(e.target.value)} placeholder="Full name" autoComplete="name" disabled={isLoading} /></div><div className="tf-account-field"><label htmlFor="register-code">Company code <span>(optional)</span></label><input id="register-code" value={regCompanyCode} onChange={e => setRegCompanyCode(e.target.value.toUpperCase())} placeholder="e.g. OAK-01" autoCapitalize="characters" disabled={isLoading} /></div></div>
+        <div className="tf-account-field"><label htmlFor="register-email">Work email</label><input id="register-email" name="email" type="email" required value={regOwnerEmail} onChange={e => setRegOwnerEmail(e.target.value)} placeholder="you@company.com" autoComplete="email" disabled={isLoading} /></div>
+        <div className="tf-account-field"><label htmlFor="register-password">Create a password</label><div className="tf-account-input-wrap"><input id="register-password" className="tf-account-password" name="new-password" type={showRegPassword ? 'text' : 'password'} required value={regPassword} onChange={e => setRegPassword(e.target.value)} placeholder="Choose your workspace password" autoComplete="new-password" disabled={isLoading} /><button className="tf-account-password-toggle" type="button" aria-label={showRegPassword ? 'Hide new password' : 'Show new password'} onClick={() => setShowRegPassword(!showRegPassword)}>{showRegPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button></div></div>
+        <details className="tf-account-details"><summary>Existing spreadsheet connection (optional)</summary><div className="tf-account-field"><label htmlFor="register-sheet">Google Sheet ID</label><input id="register-sheet" value={regSheetId} onChange={e => setRegSheetId(e.target.value)} placeholder="Leave blank for the default setup" disabled={isLoading} /><p className="tf-account-help">Only needed if you already have a compatible spreadsheet.</p></div></details>
+        <button className="tf-account-submit" type="submit" disabled={isLoading}>{isLoading ? 'Creating your workspace…' : 'Create your workspace'}<ArrowRight size={16} /></button>
+        <p className="tf-account-help">Your company code and password are used to access this workspace.</p>
+      </form>}
+      {new URLSearchParams(window.location.search).get('support') === '1' && <details className="tf-account-support"><summary>Connection support details</summary><p>Browser origin: {window.location.origin}</p><code>{getEffectiveOAuthClientId()}</code></details>}
+    </AccountShell>
   );
 };

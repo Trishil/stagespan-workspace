@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import '../account/AccountShell.css';
+import './SetupWizard.css';
 import { 
   Building2, 
   Workflow, 
@@ -305,7 +307,7 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="tf-setup min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
       {/* Top Wizard Bar */}
       <div className="bg-slate-950 border-b border-slate-800 px-4 sm:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -314,12 +316,12 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({
           </div>
           <div>
             <h1 className="text-sm font-bold text-white flex items-center space-x-2">
-              <span>Factory Setup Wizard</span>
+              <span>Set up your workspace</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-indigo-400 border border-slate-700">
                 Step {currentStep} of 8
               </span>
             </h1>
-            <p className="text-[11px] text-slate-400">Self-service onboarding &amp; configuration</p>
+            <p className="text-[11px] text-slate-400">A process built around your factory</p>
           </div>
         </div>
 

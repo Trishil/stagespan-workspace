@@ -224,8 +224,11 @@ export async function fetchGoogleUserProfile(accessToken: string): Promise<{ ema
   return res.json();
 }
 
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth as firebaseAuth } from './firebaseService';
+let googleAuthModules: Promise<[typeof import('firebase/auth'), typeof import('./firebaseService')]> | undefined;
+
+export function preloadGoogleSignIn() {
+  return googleAuthModules ||= Promise.all([import('firebase/auth'), import('./firebaseService')]);
+}
 
 export interface GoogleAuthProfile {
   uid: string;
@@ -236,6 +239,7 @@ export interface GoogleAuthProfile {
 
 export async function authenticateWithGoogle(): Promise<GoogleAuthProfile> {
   try {
+    const [{ GoogleAuthProvider, signInWithPopup }, { auth: firebaseAuth }] = await preloadGoogleSignIn();
     const provider = new GoogleAuthProvider();
     provider.addScope('email');
     provider.addScope('profile');
