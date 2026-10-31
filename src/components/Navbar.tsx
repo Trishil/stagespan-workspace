@@ -50,6 +50,7 @@ interface NavbarProps {
   onOpenAlerts: () => void;
   onTriggerManualSync: () => void;
   onExportExcel?: () => void;
+  onOpenStory?: () => void;
   onSignOut: () => void;
   onSwitchAccount: () => void;
 }
@@ -78,6 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAlerts,
   onTriggerManualSync,
   onExportExcel,
+  onOpenStory,
   onSignOut,
   onSwitchAccount
 }) => {
@@ -198,6 +200,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <FileSpreadsheet className="h-4 w-4 shrink-0" />
                 <span className="hidden sm:inline">Export Excel</span>
                 <span className="text-[10px] bg-emerald-800/80 px-1 py-0.5 rounded font-mono">.xlsx</span>
+              </button>
+            )}
+
+            {/* 3D Process Story Experience */}
+            {onOpenStory && (
+              <button
+                id="btn-navbar-open-story"
+                onClick={onOpenStory}
+                className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 transition-colors shadow-2xs border border-amber-400/30 cursor-pointer"
+                title="Explore 3D Physical Scrollytelling Story"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                <span className="hidden md:inline">3D Story</span>
               </button>
             )}
 

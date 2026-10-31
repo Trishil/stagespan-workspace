@@ -382,11 +382,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onOpenPublicSite}
-              className={`w-full flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'space-x-3 px-3 py-2'} rounded-xl text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors`}
-              title="View Public SaaS Site"
+              className={`w-full flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'space-x-3 px-3 py-2'} rounded-xl text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 hover:text-amber-900 border border-amber-200 transition-colors shadow-2xs`}
+              title="View 3D Physical Scrollytelling Story"
             >
-              <Globe className="h-4 w-4 text-slate-400 shrink-0" />
-              {!isCollapsed && <span>Public SaaS Tour</span>}
+              <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+              {!isCollapsed && <span>3D Process Story</span>}
             </button>
           )}
         </div>

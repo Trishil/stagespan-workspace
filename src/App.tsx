@@ -223,10 +223,11 @@ export default function App() {
     try {
       const params = new URLSearchParams(window.location.search);
       const exp = params.get('experience') || params.get('view');
-      if (exp === 'public') return 'public';
+      if (exp === 'public' || exp === 'story') return 'public';
       if (exp === 'onboarding') return 'onboarding';
       const stored = localStorage.getItem('saas_experience_mode');
-      if (stored === 'public' || stored === 'onboarding') return stored;
+      if (stored === 'public' || stored === 'story') return 'public';
+      if (stored === 'onboarding') return stored;
     } catch {}
     return 'workspace';
   });
@@ -244,7 +245,8 @@ export default function App() {
         url.searchParams.delete('experience');
         url.searchParams.delete('view');
       } else {
-        url.searchParams.set('experience', mode);
+        url.searchParams.set('experience', 'public');
+        url.searchParams.delete('view');
       }
       window.history.replaceState({}, '', url.toString());
     } catch {}
@@ -3567,6 +3569,7 @@ export default function App() {
           onOpenAlerts={() => setIsAlertsOpen(true)}
           onTriggerManualSync={() => handlePerformSync(false)}
           onExportExcel={handleExportExcel}
+          onOpenStory={() => handleSetExperienceMode('public')}
           onSignOut={handleSignOut}
           onSwitchAccount={handleSwitchAccount}
         />
