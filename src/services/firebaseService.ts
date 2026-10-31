@@ -255,7 +255,9 @@ export function normalizeStageForWeb(rawStage: string): WorkflowStageId {
   if (s === 'altering' || s.includes('altering') || s.includes('rework')) return 'altering';
   if (s === 'folding' || s.includes('folding') || s.includes('packing')) return 'folding';
   if (s === 'prepare_dispatch' || s.includes('dispatch')) return 'prepare_dispatch';
-  return 'fabric';
+  if (s === 'fabric' || s.includes('inward')) return 'fabric';
+  // Dynamic custom stage support (e.g. 'dyeing', 'washing', etc.)
+  return (rawStage || '').trim() || 'fabric';
 }
 
 export function formatDirectImageUrl(rawUrl: string): string {

@@ -41,6 +41,7 @@ interface FabricColorStageMatrixProps {
   onUpdateItem: (item: WorkflowItem) => void;
   onOpenCreateSlipModal: () => void;
   onOpenItemModal: (item: WorkflowItem) => void;
+  stages?: typeof WORKFLOW_STAGES;
 }
 
 export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
@@ -49,8 +50,15 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
   onUpdateStage,
   onUpdateItem,
   onOpenCreateSlipModal,
-  onOpenItemModal
+  onOpenItemModal,
+  stages: propStages
 }) => {
+  const currentStages = useMemo(() => {
+    return propStages && propStages.length >= 2 ? propStages : WORKFLOW_STAGES;
+  }, [propStages]);
+
+  const finalStageId = currentStages[currentStages.length - 1]?.id || 'prepare_dispatch';
+
   const matrixScrollRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedParty, setSelectedParty] = useState<string>('all');
@@ -120,13 +128,13 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
     return effectiveItems.map(item => {
       const totalPcs = item.pieces ?? item.quantity;
       const stageDistribution = getItemStageBreakdown(item);
-      const completedPcs = stageDistribution.prepare_dispatch || 0;
+      const completedPcs = stageDistribution[finalStageId] || stageDistribution.prepare_dispatch || 0;
       const remainingPcs = Math.max(0, totalPcs - completedPcs);
       const percentComplete = totalPcs > 0 ? Math.round((completedPcs / totalPcs) * 100) : 0;
       
       // Determine active remaining stages
-      const remainingStagesWithCounts = WORKFLOW_STAGES
-        .filter(s => s.id !== 'prepare_dispatch' && (stageDistribution[s.id] || 0) > 0)
+      const remainingStagesWithCounts = currentStages
+        .filter(s => s.id !== finalStageId && (stageDistribution[s.id] || 0) > 0)
         .map(s => ({
           stage: s,
           count: stageDistribution[s.id] || 0
@@ -191,26 +199,18 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
     let totalOrdered = 0;
     let totalCompleted = 0;
     let totalRemaining = 0;
-    const stagePieceSums: Record<WorkflowStageId, number> = {
-      fabric: 0,
-      chalan: 0,
-      inspection: 0,
-      stitching_patta: 0,
-      embroidery: 0,
-      dhaga_cutting: 0,
-      inspection_alter: 0,
-      altering: 0,
-      folding: 0,
-      prepare_dispatch: 0
-    };
+    const stagePieceSums: Record<string, number> = {};
+    currentStages.forEach(s => {
+      stagePieceSums[s.id] = 0;
+    });
 
     filteredItems.forEach(item => {
       totalOrdered += item.totalPcs;
       totalCompleted += item.completedPcs;
       totalRemaining += item.remainingPcs;
       
-      WORKFLOW_STAGES.forEach(s => {
-        stagePieceSums[s.id] += (item.stageDistribution[s.id] || 0);
+      currentStages.forEach(s => {
+        stagePieceSums[s.id] = (stagePieceSums[s.id] || 0) + (item.stageDistribution[s.id] || 0);
       });
     });
 
@@ -385,18 +385,16 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
           const percentComplete = totalOrdered > 0 ? Math.round((totalCompleted / totalOrdered) * 100) : 0;
 
           // Collect remaining stages
-          const stageCounts: Record<WorkflowStageId, number> = {
-            fabric: 0, chalan: 0, inspection: 0, stitching_patta: 0, embroidery: 0,
-            dhaga_cutting: 0, inspection_alter: 0, altering: 0, folding: 0, prepare_dispatch: 0
-          };
+          const stageCounts: Record<string, number> = {};
+          currentStages.forEach(s => { stageCounts[s.id] = 0; });
           crow.items.forEach(it => {
-            WORKFLOW_STAGES.forEach(s => {
-              stageCounts[s.id] += (it.stageDistribution[s.id] || 0);
+            currentStages.forEach(s => {
+              stageCounts[s.id] = (stageCounts[s.id] || 0) + (it.stageDistribution[s.id] || 0);
             });
           });
 
-          const remainingStages = WORKFLOW_STAGES
-            .filter(s => s.id !== 'prepare_dispatch' && stageCounts[s.id] > 0)
+          const remainingStages = currentStages
+            .filter(s => s.id !== finalStageId && (stageCounts[s.id] || 0) > 0)
             .map(s => ({ stage: s, count: stageCounts[s.id] }));
 
           return {
@@ -509,13 +507,13 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
     if (!editingItemBreakdown) return;
     
     // Calculate new completed pieces
-    const newCompleted = tempBreakdown.prepare_dispatch || 0;
+    const newCompleted = tempBreakdown[finalStageId] || tempBreakdown.prepare_dispatch || 0;
     
     // Find highest non-zero stage for primary currentStage
-    let activeStage: WorkflowStageId = 'prepare_dispatch';
-    for (let i = WORKFLOW_STAGES.length - 1; i >= 0; i--) {
-      const sId = WORKFLOW_STAGES[i].id;
-      if ((tempBreakdown[sId] || 0) > 0 && sId !== 'prepare_dispatch') {
+    let activeStage: WorkflowStageId = finalStageId;
+    for (let i = currentStages.length - 1; i >= 0; i--) {
+      const sId = currentStages[i].id;
+      if ((tempBreakdown[sId] || 0) > 0 && sId !== finalStageId) {
         activeStage = sId;
         break;
       }
@@ -523,7 +521,7 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
 
     const updatedItem: WorkflowItem = {
       ...editingItemBreakdown,
-      currentStage: newCompleted >= (editingItemBreakdown.pieces ?? editingItemBreakdown.quantity) ? 'prepare_dispatch' : activeStage,
+      currentStage: newCompleted >= (editingItemBreakdown.pieces ?? editingItemBreakdown.quantity) ? finalStageId : activeStage,
       piecesCompleted: newCompleted,
       stagePieceBreakdown: tempBreakdown
     };
@@ -644,12 +642,12 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
         <div className="mt-4 pt-4 border-t border-slate-100">
           <div className="text-xs font-semibold text-slate-700 mb-2.5 flex items-center justify-between">
             <span>Live Pieces Remaining By Stage:</span>
-            <span className="text-[11px] text-slate-400 font-mono">10-Stage Pipeline Breakdown</span>
+            <span className="text-[11px] text-slate-400 font-mono">{currentStages.length}-Stage Pipeline Breakdown</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2">
-            {WORKFLOW_STAGES.map(s => {
+          <div className="flex flex-wrap gap-2">
+            {currentStages.map((s, sIdx) => {
               const pcsCount = metrics.stagePieceSums[s.id] || 0;
-              const isFinished = s.id === 'prepare_dispatch';
+              const isFinished = s.id === finalStageId;
               return (
                 <div 
                   key={s.id}
@@ -781,7 +779,7 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
             )}
             {selectedStageFilter !== 'all' && (
               <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-medium text-[11px] border border-amber-200 flex items-center space-x-1">
-                <span>Stage: {WORKFLOW_STAGES.find(s => s.id === selectedStageFilter)?.name || selectedStageFilter}</span>
+                <span>Stage: {currentStages.find(s => s.id === selectedStageFilter)?.name || selectedStageFilter}</span>
                 <button type="button" onClick={() => setSelectedStageFilter('all')} className="hover:text-amber-950 font-bold ml-1">×</button>
               </span>
             )}
@@ -1597,14 +1595,14 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900 flex items-start space-x-2">
                 <Layers className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
                 <div>
-                  <strong>Piece Stage Allocator:</strong> Enter how many pieces are currently physically in each of the 10 production stages. Completed pieces placed in Stage 10 (Dispatch) are counted as finished!
+                  <strong>Piece Stage Allocator:</strong> Enter how many pieces are currently physically in each of the {currentStages.length} production stages. Completed pieces placed in final stage are counted as finished!
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {WORKFLOW_STAGES.map(stage => {
+                {currentStages.map((stage, idx) => {
                   const val = tempBreakdown[stage.id] || 0;
-                  const isFinal = stage.id === 'prepare_dispatch';
+                  const isFinal = stage.id === finalStageId;
 
                   return (
                     <div 
@@ -1615,10 +1613,10 @@ export const FabricColorStageMatrix: React.FC<FabricColorStageMatrixProps> = ({
                     >
                       <div>
                         <div className="text-xs font-bold text-slate-900">
-                          {stage.stepNumber}. {stage.shortName}
+                          {stage.stepNumber || idx + 1}. {stage.shortName}
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          {isFinal ? 'Ready for Dispatch / Finished' : stage.description.slice(0, 32) + '...'}
+                          {isFinal ? 'Ready for Dispatch / Finished' : (stage.description ? stage.description.slice(0, 32) + '...' : '')}
                         </div>
                       </div>
                       <div className="flex items-center space-x-1">

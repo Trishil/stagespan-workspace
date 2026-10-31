@@ -18,7 +18,8 @@ import {
   User,
   Settings,
   Globe,
-  PlusCircle
+  PlusCircle,
+  SlidersHorizontal
 } from 'lucide-react';
 import { AppTab, AuthUser, CompanyWorkspace } from '../types';
 import { ModuleId } from '../domain/configuration/types';
@@ -107,12 +108,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
       badgeColor: '',
       activeColor: 'bg-slate-900 text-white shadow-xs font-bold',
       hoverColor: 'hover:bg-slate-100/80 text-slate-600 hover:text-slate-900'
+    },
+    {
+      id: 'masters' as AppTab,
+      label: 'Masters',
+      sublabel: 'Stages, Units & Settings',
+      icon: SlidersHorizontal,
+      badge: 'Owner',
+      badgeColor: 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold',
+      activeColor: 'bg-indigo-900 text-white shadow-xs font-bold',
+      hoverColor: 'hover:bg-slate-100/80 text-slate-600 hover:text-slate-900'
     }
   ];
 
-  const hasFinancialAccess = currentUser?.role === 'owner' || currentUser?.financialAccess === true;
+  const isOwnerOrAdmin = currentUser?.role === 'owner' || isPlatformSuperAdmin(currentUser?.email) || Boolean(activeWorkspace?.ownerEmail && currentUser?.email && activeWorkspace.ownerEmail.toLowerCase() === currentUser.email.toLowerCase());
+  const hasFinancialAccess = isOwnerOrAdmin || currentUser?.financialAccess === true;
   const isModuleEnabled = (mod: string) => !enabledModules || enabledModules.includes(mod as ModuleId);
   const visibleNavItems = navItems.filter(item => {
+    if (item.id === 'masters') return isOwnerOrAdmin;
     if (!isModuleEnabled(item.id)) return false;
     if (item.id === 'finance' && !hasFinancialAccess) return false;
     return true;

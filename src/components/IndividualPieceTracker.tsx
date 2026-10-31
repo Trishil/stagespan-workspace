@@ -44,6 +44,7 @@ import confetti from 'canvas-confetti';
 interface IndividualPieceTrackerProps {
   items: WorkflowItem[];
   orderSlips?: OrderSlip[];
+  stages?: any[];
   onUpdateItem: (item: WorkflowItem) => void;
 }
 
@@ -61,8 +62,20 @@ const COMMON_DEFECT_REASONS = [
 export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
   items,
   orderSlips = [],
+  stages,
   onUpdateItem
 }) => {
+  const currentStages = useMemo(() => {
+    if (stages && stages.length >= 2) {
+      return stages;
+    }
+    return WORKFLOW_STAGES;
+  }, [stages]);
+
+  const finalStageId = useMemo(() => {
+    return (currentStages[currentStages.length - 1]?.id || 'prepare_dispatch') as WorkflowStageId;
+  }, [currentStages]);
+
   // Selected Lot / Job filter & Party Slip filter
   const [selectedSlipFilter, setSelectedSlipFilter] = useState<string>('all');
   const [selectedLotId, setSelectedLotId] = useState<string>('all');
@@ -181,25 +194,25 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
           return false;
         }
       } else if (statusFilter === 'completed') {
-        if (piece.currentStage !== 'prepare_dispatch') {
+        if (piece.currentStage !== finalStageId && piece.currentStage !== 'prepare_dispatch') {
           return false;
         }
       }
 
       return true;
     });
-  }, [allPiecesWithParent, searchQuery, stageFilter, statusFilter]);
+  }, [allPiecesWithParent, searchQuery, stageFilter, statusFilter, finalStageId]);
 
   // Key KPI stats
   const stats = useMemo(() => {
     const total = allPiecesWithParent.length;
     const inAltering = allPiecesWithParent.filter(p => p.piece.currentStage === 'altering' || p.piece.status === 'needs_alter').length;
     const inEmbroidery = allPiecesWithParent.filter(p => p.piece.currentStage === 'embroidery').length;
-    const completed = allPiecesWithParent.filter(p => p.piece.currentStage === 'prepare_dispatch').length;
+    const completed = allPiecesWithParent.filter(p => p.piece.currentStage === finalStageId || p.piece.currentStage === 'prepare_dispatch').length;
     const goodInProduction = total - inAltering - completed;
 
     return { total, inAltering, inEmbroidery, completed, goodInProduction };
-  }, [allPiecesWithParent]);
+  }, [allPiecesWithParent, finalStageId]);
 
   // Handle single piece stage transfer
   const handleMoveSinglePiece = (
@@ -212,17 +225,17 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
     const updated = updateIndividualPieceStage(item, piece.id, targetStage, status, reason);
     onUpdateItem(updated);
 
-    const stDef = WORKFLOW_STAGES.find(s => s.id === targetStage);
+    const stDef = currentStages.find((s: any) => s.id === targetStage);
     const pName = piece.partyName || item.partyName || 'Party';
     const jNo = piece.jobNo || item.jobNo || item.lotNumber || '—';
 
-    if (targetStage === 'prepare_dispatch') {
+    if (targetStage === finalStageId || targetStage === 'prepare_dispatch') {
       confetti({ particleCount: 30, spread: 50, origin: { y: 0.7 } });
       setLastActionToast(`✅ Piece #${piece.pieceNumber} moved to Ready for Dispatch & synced with Party Order Slip (${pName}, Job: ${jNo})`);
     } else if (targetStage === 'altering') {
       setLastActionToast(`⚠️ Piece #${piece.pieceNumber} routed to Altering (${reason || 'Rework'}) & recorded`);
     } else {
-      setLastActionToast(`🔄 Piece #${piece.pieceNumber} advanced to ${stDef?.shortName || targetStage}`);
+      setLastActionToast(`🔄 Piece #${piece.pieceNumber} advanced to ${stDef?.shortName || stDef?.name || targetStage}`);
     }
     setTimeout(() => setLastActionToast(null), 4000);
   };
@@ -302,13 +315,14 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
 
       let currentUpdatedItem = item;
       pieces.forEach(p => {
-        const next = getNextStage(p.currentStage);
+        const next = getNextStage(p.currentStage, currentStages);
         if (next) {
+          const isDone = next === finalStageId || next === 'prepare_dispatch';
           currentUpdatedItem = updateIndividualPieceStage(
             currentUpdatedItem,
             p.id,
             next,
-            next === 'prepare_dispatch' ? 'completed' : 'good'
+            isDone ? 'completed' : 'good'
           );
         }
       });
@@ -334,6 +348,7 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
       }
     });
 
+    const isDone = targetStage === finalStageId || targetStage === 'prepare_dispatch';
     Object.entries(itemToPieceIds).forEach(([itemId, pIds]) => {
       const item = items.find(it => it.id === itemId);
       if (item) {
@@ -341,7 +356,7 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
           item,
           pIds,
           targetStage,
-          targetStage === 'altering' ? 'needs_alter' : targetStage === 'prepare_dispatch' ? 'completed' : 'good'
+          targetStage === 'altering' ? 'needs_alter' : isDone ? 'completed' : 'good'
         );
         onUpdateItem(updated);
       }
@@ -669,9 +684,9 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
               onChange={(e) => setStageFilter(e.target.value)}
               className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-slate-400 focus:outline-none transition-colors"
             >
-              <option value="all">All 10 Stages</option>
-              {WORKFLOW_STAGES.map(st => (
-                <option key={st.id} value={st.id}>{st.stepNumber}. {st.shortName}</option>
+              <option value="all">All {currentStages.length} Stages</option>
+              {currentStages.map((st: any, idx: number) => (
+                <option key={st.id} value={st.id}>{st.stepNumber || idx + 1}. {st.shortName || st.name}</option>
               ))}
             </select>
           </div>
@@ -769,7 +784,7 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
                   className="px-2.5 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-bold cursor-pointer hover:bg-slate-700 transition-colors"
                 >
                   <option value="" disabled>Move to stage...</option>
-                  {WORKFLOW_STAGES.map(st => (
+                  {currentStages.map((st: any) => (
                     <option key={st.id} value={st.id}>&rarr; {st.name}</option>
                   ))}
                 </select>
@@ -836,9 +851,9 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
             {filteredPieces.map(({ item, piece }) => {
               const isSelected = selectedPieceIds.has(piece.id);
               const isAltering = piece.currentStage === 'altering' || piece.status === 'needs_alter';
-              const stageDef = WORKFLOW_STAGES.find(s => s.id === piece.currentStage) || WORKFLOW_STAGES[0];
-              const nextStageId = getNextStage(piece.currentStage);
-              const nextStageDef = nextStageId ? WORKFLOW_STAGES.find(s => s.id === nextStageId) : null;
+              const stageDef = currentStages.find((s: any) => s.id === piece.currentStage) || currentStages[0];
+              const nextStageId = getNextStage(piece.currentStage, currentStages);
+              const nextStageDef = nextStageId ? currentStages.find((s: any) => s.id === nextStageId) : null;
 
             return (
               <div
@@ -974,12 +989,12 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
                             item, 
                             piece, 
                             nextStageId!, 
-                            nextStageId === 'prepare_dispatch' ? 'completed' : 'good'
+                            (nextStageId === finalStageId || nextStageId === 'prepare_dispatch') ? 'completed' : 'good'
                           )}
                           className="flex-1 py-1.5 px-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center space-x-1 shadow-xs transition-colors"
-                          title={`Advance to ${nextStageDef.shortName}`}
+                          title={`Advance to ${nextStageDef.shortName || nextStageDef.name}`}
                         >
-                          <span className="truncate">&rarr; {nextStageDef.shortName}</span>
+                          <span className="truncate">&rarr; {nextStageDef.shortName || nextStageDef.name}</span>
                         </button>
                       )}
                     </div>
@@ -994,12 +1009,12 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
                         item, 
                         piece, 
                         e.target.value as WorkflowStageId, 
-                        e.target.value === 'altering' ? 'needs_alter' : e.target.value === 'prepare_dispatch' ? 'completed' : 'good'
+                        e.target.value === 'altering' ? 'needs_alter' : (e.target.value === finalStageId || e.target.value === 'prepare_dispatch') ? 'completed' : 'good'
                       )}
                       className="px-2 py-0.5 rounded border border-slate-300 bg-white text-[11px] font-semibold text-slate-700 cursor-pointer"
                     >
-                      {WORKFLOW_STAGES.map(st => (
-                        <option key={st.id} value={st.id}>{st.stepNumber}. {st.shortName}</option>
+                      {currentStages.map((st: any, idx: number) => (
+                        <option key={st.id} value={st.id}>{st.stepNumber || idx + 1}. {st.shortName || st.name}</option>
                       ))}
                     </select>
                   </div>
@@ -1012,11 +1027,11 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
         </div>
       ))}
 
-      {/* VIEW 2: 10-STAGE COLUMNS / SWIMLANES */}
+      {/* VIEW 2: DYNAMIC STAGE COLUMNS / SWIMLANES */}
       {trackerDisplayMode === 'columns' && (
         <div className="overflow-x-auto pb-6">
           <div className="flex space-x-4 min-w-[1400px]">
-            {WORKFLOW_STAGES.map(stage => {
+            {currentStages.map((stage: any) => {
               const piecesInStage = filteredPieces.filter(p => p.piece.currentStage === stage.id);
               const isAlteringColumn = stage.id === 'altering';
 
@@ -1113,12 +1128,12 @@ export const IndividualPieceTracker: React.FC<IndividualPieceTrackerProps> = ({
                                 </button>
                               )}
 
-                              {getNextStage(stage.id) && (
+                              {getNextStage(stage.id, currentStages) && (
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    const next = getNextStage(stage.id);
-                                    if (next) handleMoveSinglePiece(item, piece, next, next === 'prepare_dispatch' ? 'completed' : 'good');
+                                    const next = getNextStage(stage.id, currentStages);
+                                    if (next) handleMoveSinglePiece(item, piece, next, (next === finalStageId || next === 'prepare_dispatch') ? 'completed' : 'good');
                                   }}
                                   className="px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold"
                                 >

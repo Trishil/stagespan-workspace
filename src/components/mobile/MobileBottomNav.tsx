@@ -3,7 +3,8 @@ import {
   Workflow, 
   Layers, 
   Truck, 
-  Wallet 
+  Wallet,
+  SlidersHorizontal
 } from 'lucide-react';
 import { AppTab, AuthUser } from '../../types';
 
@@ -55,12 +56,28 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     }
   ];
 
+  const isOwnerOrAdmin = currentUser?.role === 'owner' || currentUser?.email === 'trishilbalar@gmail.com';
+
+  const allTabs = [
+    ...tabs,
+    ...(isOwnerOrAdmin ? [{
+      id: 'masters' as AppTab,
+      label: 'Masters',
+      icon: SlidersHorizontal,
+      badge: null,
+      badgeColor: ''
+    }] : [])
+  ];
+
   const hasFinancialAccess = currentUser?.role === 'owner' || currentUser?.financialAccess === true;
-  const visibleTabs = tabs.filter(t => t.id !== 'finance' || hasFinancialAccess);
+  const visibleTabs = allTabs.filter(t => t.id !== 'finance' || hasFinancialAccess);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom,0px)]">
-      <div className={`grid h-15 px-2 ${visibleTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-4'}`}>
+      <div className={`grid h-15 px-2 ${
+        visibleTabs.length === 3 ? 'grid-cols-3' : 
+        visibleTabs.length === 4 ? 'grid-cols-4' : 'grid-cols-5'
+      }`}>
         {visibleTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

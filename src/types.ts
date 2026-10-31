@@ -239,9 +239,9 @@ export interface AuthUser {
   financialAccess?: boolean;
 }
 
-export type AppTab = 'workflow' | 'inventory' | 'dispatch' | 'finance' | 'production' | 'analytics';
+export type AppTab = 'workflow' | 'inventory' | 'dispatch' | 'finance' | 'production' | 'analytics' | 'masters';
 
-export type WorkflowStageId = 
+export type CanonicalStageId = 
   | 'fabric'
   | 'chalan'
   | 'inspection'
@@ -252,6 +252,8 @@ export type WorkflowStageId =
   | 'altering'
   | 'folding'
   | 'prepare_dispatch';
+
+export type WorkflowStageId = CanonicalStageId | (string & {});
 
 export interface WorkflowStageHistory {
   stageId?: WorkflowStageId;

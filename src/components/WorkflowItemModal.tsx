@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   Layers, 
@@ -46,6 +46,7 @@ import { formatDirectImageUrl } from '../services/firebaseService';
 interface WorkflowItemModalProps {
   item: WorkflowItem | null;
   isOpen: boolean;
+  stages?: any[];
   onClose: () => void;
   onUpdateStage: (itemId: string, newStage: WorkflowStageId, note?: string, qcResult?: 'good' | 'bad_return' | 'needs_alter' | 'passed') => void;
   onUpdateItem: (updatedItem: WorkflowItem) => void;
@@ -61,12 +62,19 @@ interface PhotoMetadata {
 export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
   item,
   isOpen,
+  stages,
   onClose,
   onUpdateStage,
   onUpdateItem,
   onDeleteItem,
   onHandoverToDispatch
 }) => {
+  const currentStages = useMemo(() => {
+    if (stages && stages.length >= 2) {
+      return stages;
+    }
+    return WORKFLOW_STAGES;
+  }, [stages]);
   const [activeTab, setActiveTab] = useState<'details' | 'completion' | 'photos' | 'history' | 'edit'>('details');
   const [operatorNote, setOperatorNote] = useState('');
   const [operatorName, setOperatorName] = useState(item?.assignedOperator || 'Floor Supervisor');
@@ -160,11 +168,11 @@ export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
     setShowNewFabricInput(false);
   };
 
-  const currentStageDef = WORKFLOW_STAGES.find(s => s.id === item.currentStage) || WORKFLOW_STAGES[0];
-  const nextStageId = getNextStage(item.currentStage);
-  const prevStageId = getPreviousStage(item.currentStage);
-  const nextStageDef = nextStageId ? WORKFLOW_STAGES.find(s => s.id === nextStageId) : null;
-  const prevStageDef = prevStageId ? WORKFLOW_STAGES.find(s => s.id === prevStageId) : null;
+  const currentStageDef = currentStages.find((s: any) => s.id === item.currentStage) || currentStages[0];
+  const nextStageId = getNextStage(item.currentStage, currentStages);
+  const prevStageId = getPreviousStage(item.currentStage, currentStages);
+  const nextStageDef = nextStageId ? currentStages.find((s: any) => s.id === nextStageId) : null;
+  const prevStageDef = prevStageId ? currentStages.find((s: any) => s.id === prevStageId) : null;
 
   const handleAdvanceStage = () => {
     if (nextStageId) {
@@ -353,7 +361,7 @@ export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
 
           <div className="flex items-center space-x-2">
             <span className="text-[11px] font-mono text-slate-500">
-              Stage {WORKFLOW_STAGES.findIndex(s => s.id === item.currentStage) + 1} of 10
+              Stage {Math.max(1, currentStages.findIndex((s: any) => s.id === item.currentStage) + 1)} of {currentStages.length}
             </span>
           </div>
         </div>
@@ -1099,7 +1107,7 @@ export const WorkflowItemModal: React.FC<WorkflowItemModalProps> = ({
 
               <div className="relative pl-6 border-l-2 border-slate-200 space-y-6">
                 {(item.stageHistory || []).map((hist, idx) => {
-                  const sDef = WORKFLOW_STAGES.find(s => s.id === hist.stageId);
+                  const sDef = currentStages.find((s: any) => s.id === hist.stageId);
                   return (
                     <div key={idx} className="relative">
                       {/* Timeline dot */}

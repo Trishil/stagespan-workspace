@@ -695,8 +695,13 @@ export function mergeOrderSlips(current: OrderSlip[], incoming: OrderSlip[]): Or
   return Array.from(map.values());
 }
 
-export function getNextStage(currentStage: WorkflowStageId): WorkflowStageId | null {
-  const stageOrder: WorkflowStageId[] = [
+export function getNextStage(
+  currentStage: WorkflowStageId,
+  customStages?: Array<{ id: string }>
+): WorkflowStageId | null {
+  const stageOrder: WorkflowStageId[] = customStages && customStages.length >= 2
+    ? customStages.map(s => s.id as WorkflowStageId)
+    : [
     'fabric',
     'chalan',
     'inspection',
@@ -716,8 +721,13 @@ export function getNextStage(currentStage: WorkflowStageId): WorkflowStageId | n
   return null;
 }
 
-export function getPreviousStage(currentStage: WorkflowStageId): WorkflowStageId | null {
-  const stageOrder: WorkflowStageId[] = [
+export function getPreviousStage(
+  currentStage: WorkflowStageId,
+  customStages?: Array<{ id: string }>
+): WorkflowStageId | null {
+  const stageOrder: WorkflowStageId[] = customStages && customStages.length >= 2
+    ? customStages.map(s => s.id as WorkflowStageId)
+    : [
     'fabric',
     'chalan',
     'inspection',

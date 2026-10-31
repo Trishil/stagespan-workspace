@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   INITIAL_MACHINES, 
@@ -173,8 +173,10 @@ import { PublicMasterSite } from './features/marketing/PublicMasterSite';
 import { SetupWizard } from './features/onboarding/SetupWizard';
 import { FactorySettingsModal } from './features/workspace-settings/FactorySettingsModal';
 import { PlatformAdminPanel } from './features/platform-admin/PlatformAdminPanel';
+import { MastersManager } from './features/masters/MastersManager';
 import { tenantRepository, resetTenantMemoryCache } from './services/repositories/tenantRepository';
 import { FactoryConfiguration } from './domain/configuration/types';
+import { UserMembership } from './domain/permissions/types';
 import { TEXTILE_TEMPLATE } from './templates/textile';
 import { instantiateTemplateConfiguration } from './templates/registry';
 
@@ -3248,6 +3250,28 @@ export default function App() {
   const activeWorkflowStages = activeWf?.stages;
   const isTextile = !activeFactoryConfig || activeFactoryConfig.factoryCode?.toUpperCase().includes('TRISHARTH') || (activeWorkflowStages && activeWorkflowStages.length === 10);
 
+  const currentUserMembership: UserMembership | null = useMemo(() => {
+    if (!currentUser || !activeFactoryConfig) return null;
+    return {
+      userId: currentUser.id || currentUser.email,
+      email: currentUser.email || 'user@factory.local',
+      name: currentUser.name || 'Factory User',
+      companyId: activeFactoryConfig.companyId,
+      role: isPlatformSuperAdmin(currentUser.email)
+        ? 'super_admin'
+        : (currentUser.role === 'owner' || activeWorkspace.ownerEmail?.toLowerCase() === currentUser.email?.toLowerCase())
+        ? 'company_owner'
+        : (currentUser.role === 'operator' ? 'operator' : 'factory_admin'),
+      permittedFactoryIds: [activeFactoryConfig.factoryId],
+      status: 'active'
+    };
+  }, [currentUser, activeFactoryConfig, activeWorkspace.ownerEmail]);
+
+  const handleConfigUpdated = async (published: FactoryConfiguration) => {
+    setActiveFactoryConfig(published);
+    await tenantRepository.saveFactoryConfiguration(published);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-slate-900 selection:text-white">
       {isMobile ? (
@@ -3344,6 +3368,18 @@ export default function App() {
                 onPaySalary={handlePaySalary}
                 onPayElectricityBill={handlePayElectricityBill}
               />
+            )}
+
+            {activeMainTab === 'masters' && activeFactoryConfig && (
+              <div className="p-3 pb-24">
+                <MastersManager
+                  config={activeFactoryConfig}
+                  membership={currentUserMembership}
+                  currentUser={currentUser}
+                  activeWorkspace={activeWorkspace}
+                  onConfigUpdated={handleConfigUpdated}
+                />
+              </div>
             )}
           </main>
 
@@ -3656,6 +3692,16 @@ export default function App() {
             onDeleteSupplierPayable={handleDeleteSupplierPayable}
             onClearAllFinanceData={handleClearAllFinanceData}
             syncConfig={syncConfig}
+          />
+        )}
+
+        {activeMainTab === 'masters' && activeFactoryConfig && (
+          <MastersManager
+            config={activeFactoryConfig}
+            membership={currentUserMembership}
+            currentUser={currentUser}
+            activeWorkspace={activeWorkspace}
+            onConfigUpdated={handleConfigUpdated}
           />
         )}
 

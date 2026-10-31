@@ -502,6 +502,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         <FabricColorStageMatrix
           items={items}
           orderSlips={currentOrderSlips}
+          stages={effectiveStages as any}
           onUpdateStage={onUpdateStage}
           onUpdateItem={onUpdateItem}
           onOpenCreateSlipModal={handleOpenNewSlip}
@@ -514,6 +515,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         <IndividualPieceTracker
           items={effectiveItems}
           orderSlips={currentOrderSlips}
+          stages={effectiveStages as any}
           onUpdateItem={onUpdateItem}
         />
       )}
@@ -1350,6 +1352,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({
       <WorkflowItemModal
         item={selectedItemForModal}
         isOpen={Boolean(selectedItemForModal)}
+        stages={effectiveStages as any}
         onClose={() => setSelectedItemForModal(null)}
         onUpdateStage={(itemId, newStage, notes, qc) => {
           onUpdateStage(itemId, newStage, notes, qc);
