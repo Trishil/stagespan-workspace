@@ -3161,7 +3161,7 @@ export default function App({ initialLogin }: AppProps = {}) {
 
   // Auth gate
   if (!currentUser || !currentUser.sheetAccessGranted) {
-    if (experienceMode === 'public') { return <a href={BROCHURE_URL}>Open the Textflow website</a>; }
+    if (experienceMode === 'public') { return <a href={BROCHURE_URL}>Open the StageSpan website</a>; }
     if (experienceMode === 'onboarding') {
       return (
         <SetupWizard
@@ -3183,7 +3183,7 @@ export default function App({ initialLogin }: AppProps = {}) {
   }
 
   // Authenticated SaaS Experience Views
-  if (experienceMode === 'public') { return <a href={BROCHURE_URL}>Open the Textflow website</a>; }
+  if (experienceMode === 'public') { return <a href={BROCHURE_URL}>Open the StageSpan website</a>; }
   if (experienceMode === 'onboarding') {
     return (
       <SetupWizard

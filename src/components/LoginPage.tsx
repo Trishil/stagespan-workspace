@@ -663,7 +663,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   return (
     <AccountShell mode={authMode}>
-      <p className="tf-account-eyebrow">YOUR TEXTFLOW WORKSPACE</p>
+      <p className="tf-account-eyebrow">YOUR STAGESPAN WORKSPACE</p>
       <h1>{authMode === 'login' ? <>Welcome<br /><em>back.</em></> : <>A workspace<br /><em>of your own.</em></>}</h1>
       <p className="tf-account-intro">{authMode === 'login' ? 'Sign in to pick up where your team left off.' : 'Create a home for your factory’s stages, materials and orders.'}</p>
       <div className="tf-account-tabs" aria-label="Account options">

@@ -1,28 +1,41 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# StageSpan Workspace
 
-# Run and deploy your AI Studio app
+Configurable factory operations software for tracking production stages, raw materials, dispatch and accounts. Start with a workflow template, then configure stages, units, fields and team access for your factory.
 
-This contains everything you need to run your app locally.
+[Product website](https://trishil.github.io/stagespan/) · [Open workspace](https://trishil.github.io/stagespan-workspace/?experience=workspace)
 
-View your app in AI Studio: https://ai.studio/apps/08fcc47f-cb23-484c-85d2-87f3ed15c3a7
+## Modules
 
-## Run Locally
+- Production workflow, batch and piece tracking
+- Materials, inventory and stock movements
+- Dispatch, delivery notes and payments
+- Receivables, payables and operating expenses
+- Workflow configuration and team permissions
 
-**Prerequisites:**  Node.js
+Industry templates include textiles and furniture. Features available to a workspace depend on its configuration and permissions.
 
+## Development
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Requires Node.js 20 or later.
 
-## Textflow brand and hosting
+1. Install dependencies with `npm ci`.
+2. Copy `.env.example` to `.env.local` and configure Firebase and Google OAuth for your environment.
+3. Start the development server with `npm run dev`.
 
-App repository: https://github.com/Trishil/textflow-workspace
-Workspace: https://trishil.github.io/textflow-workspace/?experience=workspace
-Brochure: https://trishil.github.io/textflow/
+Run `npm run build` for a production build and `npm test` for the regression tests. Keep credentials out of Git.
 
-The local checkout directory keeps its existing name. Workspace visual styles live in `src/workspace.css`; all changes are scoped to the signed-in app. Existing tenant identifiers and stored records are preserved.
+## Deployment
+
+GitHub Actions builds the main branch and publishes the static app to GitHub Pages. The brochure is maintained separately in [stagespan](https://github.com/Trishil/stagespan).
+
+## Project structure
+
+- `src/components/`: operations screens and dialogs
+- `src/domain/`: workflow, configuration and permission rules
+- `src/features/`: account entry, setup, settings and administration
+- `src/templates/`: industry workflow templates
+- `src/workspace.css`: workspace visual system
+
+## Contact
+
+Product inquiries: trishilbalar92@gmail.com

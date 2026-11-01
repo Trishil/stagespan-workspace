@@ -65,7 +65,7 @@ export const StoryExperience: React.FC<Props> = ({ onGoToWorkspace, onGoToOnboar
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'Textflow — The craft. The process. The clarity.';
+    document.title = 'StageSpan — The craft. The process. The clarity.';
     return () => { document.title = previousTitle; };
   }, []);
 
@@ -183,7 +183,7 @@ export const StoryExperience: React.FC<Props> = ({ onGoToWorkspace, onGoToOnboar
     <div className="tf-site" id="textflow-top">
       <a className="tf-skip-link" href="#the-platform">Skip the film and explore the workspace</a>
       <header className="tf-header">
-        <a href="#textflow-top" className="tf-brand" aria-label="Textflow home"><span className="tf-monogram" aria-hidden="true"><i /><i /><i /></span><span>TEXTFLOW<small>BY TRISHARTH</small></span></a>
+        <a href="#textflow-top" className="tf-brand" aria-label="StageSpan home"><span className="tf-monogram" aria-hidden="true"><i /><i /><i /></span><span>STAGESPAN<small>BY TRISHARTH</small></span></a>
         <nav className="tf-desktop-nav" aria-label="Main navigation"><a href="#the-journey">The journey</a><a href="#the-platform">The platform</a><a href="#your-process">Your process</a></nav>
         <div className="tf-header-actions"><button className="tf-login" onClick={openLogin}>Workspace <ArrowUpRight size={14} /></button><button className="tf-menu-toggle" aria-expanded={menuOpen} aria-controls="tf-mobile-navigation" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={21} /> : <Menu size={21} />}</button></div>
         <nav className="tf-mobile-nav" id="tf-mobile-navigation" aria-label="Mobile navigation" hidden={!menuOpen} onKeyDown={event => { if (event.key === 'Escape') { setMenuOpen(false); document.querySelector<HTMLButtonElement>('.tf-menu-toggle')?.focus(); } }}><a href="#the-journey" onClick={() => setMenuOpen(false)}>The journey</a><a href="#the-platform" onClick={() => setMenuOpen(false)}>The platform</a><a href="#your-process" onClick={() => setMenuOpen(false)}>Your process</a></nav>
@@ -212,7 +212,7 @@ export const StoryExperience: React.FC<Props> = ({ onGoToWorkspace, onGoToOnboar
           {staticStory ? CHAPTERS.map((chapter, index) => <article className="tf-static-chapter" id={`story-${chapter.id}`} key={chapter.id}><div className="tf-static-image"><img src={asset(chapter.image)} alt={chapter.alt} loading="lazy" width="1672" height="941" /></div><div className="tf-static-copy">{chapterCopy(index)}</div></article>) : <div className="tf-story-screen" ref={screenRef}>
             {CHAPTERS.map((chapter, index) => <div key={chapter.id} className={`tf-story-layer ${index === activeIdx ? 'is-active' : ''}`} aria-hidden="true"><img src={asset(chapter.image)} alt="" loading="lazy" width="1672" height="941" style={{ objectPosition: chapter.position }} />{chapter.video && index === activeIdx && animateVideo && storyNearViewport && !failedClips.has(index) && <video ref={el => { videoRefs.current[index] = el; }} src={asset(chapter.video)} poster={asset(chapter.image)} muted playsInline preload="metadata" onLoadedMetadata={() => { cancelAnimationFrame(scrubFrame.current); scrubFrame.current = requestAnimationFrame(seekActiveVideo); }} onSeeked={() => { if (inViewRef.current) { cancelAnimationFrame(scrubFrame.current); scrubFrame.current = requestAnimationFrame(seekActiveVideo); } }} onError={() => setFailedClips(previous => new Set(previous).add(index))} />}</div>)}
             <div className="tf-story-scrim" aria-hidden="true" />
-            <div className="tf-story-top"><a href="#textflow-top">TEXTFLOW / THE JOURNEY</a><a href="#the-platform">Skip to the platform <ArrowUpRight size={14} /></a></div>
+            <div className="tf-story-top"><a href="#textflow-top">STAGESPAN / THE JOURNEY</a><a href="#the-platform">Skip to the platform <ArrowUpRight size={14} /></a></div>
             <div className="tf-chapter-copy" key={activeIdx}>{chapterCopy(activeIdx)}</div>
             <div className="tf-chapter-number" aria-hidden="true">0{activeIdx + 1}<span>/ 05</span></div>
             <nav className="tf-chapter-nav" aria-label="Story chapters">{CHAPTERS.map((chapter, index) => <button key={chapter.id} aria-current={index === activeIdx ? 'step' : undefined} onClick={() => jumpToChapter(index)}><span>0{index + 1}</span>{chapter.label}<ArrowUpRight size={13} /></button>)}</nav>
@@ -220,7 +220,7 @@ export const StoryExperience: React.FC<Props> = ({ onGoToWorkspace, onGoToOnboar
           </div>}
         </section>
 
-        <section className="tf-platform" id="the-platform" aria-labelledby="tf-platform-title"><div className="tf-platform-heading"><p className="tf-eyebrow">THE WORKSPACE BEHIND THE WORK</p><h2 id="tf-platform-title">The craft is complex.<br /><em>Your workflow shouldn’t be.</em></h2><p>Textflow brings your stages, materials and orders into one workspace. Built around the way your factory works.</p></div><div className="tf-capabilities">{[
+        <section className="tf-platform" id="the-platform" aria-labelledby="tf-platform-title"><div className="tf-platform-heading"><p className="tf-eyebrow">THE WORKSPACE BEHIND THE WORK</p><h2 id="tf-platform-title">The craft is complex.<br /><em>Your workflow shouldn’t be.</em></h2><p>StageSpan brings your stages, materials and orders into one workspace. Built around the way your factory works.</p></div><div className="tf-capabilities">{[
           ['01', 'Know where the work is.', 'Follow jobs through your own stages, including inspection and rework.'],
           ['02', 'Give materials a place.', 'Organise stock, choose measurement units and record consumption against jobs.'],
           ['03', 'See what is ready.', 'Keep dispatch preparation connected to the production work that came before it.'],
@@ -231,7 +231,7 @@ export const StoryExperience: React.FC<Props> = ({ onGoToWorkspace, onGoToOnboar
         <section className="tf-closing" aria-labelledby="tf-closing-title"><p className="tf-eyebrow">YOUR NEXT CHAPTER</p><h2 id="tf-closing-title">Make room for<br /><em>remarkable work.</em></h2><p>A clearer process starts with your first stage.</p><div className="tf-closing-actions"><button className="tf-primary" onClick={openOnboarding}>Create your workspace <ArrowUpRight size={16} /></button><button className="tf-text-link" onClick={openWorkspace}>Already have a workspace? <ArrowRight size={16} /></button></div></section>
       </main>
 
-      <footer className="tf-footer"><a href="#textflow-top" className="tf-brand"><span className="tf-monogram" aria-hidden="true"><i /><i /><i /></span><span>TEXTFLOW<small>BY TRISHARTH</small></span></a><p>Thoughtful craft. Clearer operations.</p><div><span>© {new Date().getFullYear()} Trisharth</span>{isPlatformAdmin && onGoToPlatformAdmin && <button onClick={() => { openWorkspace(); onGoToPlatformAdmin?.(); }}>Platform admin <ArrowUpRight size={12} /></button>}<a href="#textflow-top">Back to top <ArrowUpRight size={12} /></a></div></footer>
+      <footer className="tf-footer"><a href="#textflow-top" className="tf-brand"><span className="tf-monogram" aria-hidden="true"><i /><i /><i /></span><span>STAGESPAN<small>BY TRISHARTH</small></span></a><p>Thoughtful craft. Clearer operations.</p><div><span>© {new Date().getFullYear()} Trisharth</span>{isPlatformAdmin && onGoToPlatformAdmin && <button onClick={() => { openWorkspace(); onGoToPlatformAdmin?.(); }}>Platform admin <ArrowUpRight size={12} /></button>}<a href="#textflow-top">Back to top <ArrowUpRight size={12} /></a></div></footer>
     </div>
   );
 };

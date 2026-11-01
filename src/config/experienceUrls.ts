@@ -1,1 +1,1 @@
-export const BROCHURE_URL = 'https://trishil.github.io/textflow/';
+export const BROCHURE_URL = 'https://trishil.github.io/stagespan/';

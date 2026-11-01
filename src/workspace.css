@@ -1,5 +1,5 @@
-@font-face{font-family:Textflow;src:url('./assets/geist-latin-wght-normal.woff2') format('woff2');font-weight:100 900;font-display:swap}
-.tf-workspace{font-family:Textflow,Arial,sans-serif;background:#f3f4ef;color:#242d25;--tf-border:#dfe3d9;--tf-olive:#344733}
+@font-face{font-family:StageSpan;src:url('./assets/geist-latin-wght-normal.woff2') format('woff2');font-weight:100 900;font-display:swap}
+.tf-workspace{font-family:StageSpan,Arial,sans-serif;background:#f3f4ef;color:#242d25;--tf-border:#dfe3d9;--tf-olive:#344733}
 .tf-workspace .font-mono{font-family:inherit;font-variant-numeric:tabular-nums}
 .tf-workspace :is(button,a,input,select,textarea):focus-visible{outline:3px solid #a18646;outline-offset:3px}
 .tf-workspace button{transition:background .18s,color .18s,border-color .18s;min-height:36px}

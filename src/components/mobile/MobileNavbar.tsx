@@ -61,7 +61,7 @@ export const MobileNavbar: React.FC<MobileNavbarProps> = ({
       return name.slice(0, 2).toUpperCase();
     }
     if (email) return email.slice(0, 2).toUpperCase();
-    return 'TF';
+    return 'SS';
   };
 
   return (
@@ -74,12 +74,12 @@ export const MobileNavbar: React.FC<MobileNavbarProps> = ({
             className="h-8 w-8 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center shadow-xs shrink-0 font-mono font-bold text-xs text-white"
             title={currentUser?.name || 'Profile'}
           >
-            TF
+            SS
           </div>
           <div className="min-w-0">
             <div className="flex items-center space-x-1.5">
               <span className="font-mono font-black text-xs text-slate-900 tracking-tight truncate">
-                TEXTFLOW
+                STAGESPAN
               </span>
             </div>
             <p className="text-[10px] text-slate-500 truncate font-semibold">
